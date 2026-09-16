@@ -29,7 +29,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
     ports:
-      - "8080:8080"
+      - "8081:8080"
 
 volumes:
   fluxarte-db-data:

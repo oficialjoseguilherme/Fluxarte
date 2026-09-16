@@ -46,6 +46,9 @@ public class Usuario {
     @Column(name = "nome_exibicao")
     private String nomeExibicao;
 
+    @Column(name = "data_nascimento")
+    private LocalDate dataNascimento;
+
     @Column(name = "aceita_conteudo_adulto", nullable = false)
     @Builder.Default
     private Boolean aceitaConteudoAdulto = false;

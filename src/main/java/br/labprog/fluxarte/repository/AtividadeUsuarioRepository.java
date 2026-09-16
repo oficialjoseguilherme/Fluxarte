@@ -1,0 +1,12 @@
+package br.labprog.fluxarte.repository;
+
+import br.labprog.fluxarte.model.AtividadeUsuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface AtividadeUsuarioRepository extends JpaRepository<AtividadeUsuario, Long> {
+
+    List<AtividadeUsuario> findByUsuarioIdOrderByRegistradoEmDesc(UUID usuarioId);
+}
