@@ -33,3 +33,11 @@ build/
 .vscode/
 
 .ai/*
+
+### Ambiente / segredos ###
+.env
+.env.local
+application-local.properties
+
+### Docker ###
+# (nada aqui - Dockerfile e docker-compose.yml DEVEM ser commitados)

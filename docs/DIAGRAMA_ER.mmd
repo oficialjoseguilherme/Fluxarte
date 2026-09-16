@@ -1,0 +1,163 @@
+erDiagram
+
+    %% =============================================
+    %% 1. USUÁRIOS E AUTENTICAÇÃO (RF14, RF15, RF16)
+    %% =============================================
+
+    Usuario {
+        UUID id PK
+        String nome
+        String email UK
+        String senha_hash
+        Date data_nascimento
+        String nome_exibicao "incorporado do perfil"
+        Boolean aceita_conteudo_adulto "filtro de preferencia familiar"
+        String tipo_usuario "ENUM: ADMIN | ESPECTADOR"
+        Boolean ativo
+        DateTime criado_em
+        DateTime atualizado_em
+    }
+
+    RefreshToken {
+        Long id PK
+        UUID usuario_id FK
+        String token UK "token seguro de 30 dias"
+        DateTime expira_em "validade longa"
+        Boolean revogado "para seguranca / logout"
+        DateTime criado_em
+    }
+
+    AtividadeUsuario {
+        Long id PK
+        UUID usuario_id FK
+        String tipo_atividade "BUSCA | CLIQUE_OBRA | VIEW_TRAILER | VIEW_DIRETOR"
+        String termo_busca "quando for busca"
+        Long obra_id_referenciada "quando for clique"
+        Json metadados_json
+        DateTime registrado_em
+    }
+
+    Usuario ||--o{ RefreshToken : "possui"
+    Usuario ||--o{ AtividadeUsuario : "gera atividades"
+    Usuario }o--o{ GeneroObra : "prefere (RF16/RF17)"
+    Usuario }o--o{ ObraAudiovisual : "favoritou"
+
+    %% =============================================
+    %% 2. CATÁLOGO E OBRAS (RF01 a RF07, RF11, RF13, RF20)
+    %% =============================================
+
+    ObraAudiovisual {
+        Long id PK
+        String titulo
+        String titulo_original
+        String diretor "RF09: busca direta por diretor"
+        String sinopse
+        Integer ano_producao
+        String idioma_original
+        String poster_url
+        String banner_url
+        Boolean disponivel
+        String status "ATIVO | INATIVO | RASCUNHO"
+        DateTime data_inicio_exibicao "RF13: inicio da janela (se null = livre)"
+        DateTime data_fim_exibicao "RF13: fim da janela (se null = permanente)"
+        String classificacao_indicativa "ENUM Java: LIVRE, DEZ, DOZE, QUATORZE, DEZESSEIS, DEZOITO"
+        DateTime criado_em
+        DateTime atualizado_em
+    }
+
+    GeneroObra {
+        Long id PK
+        String nome UK "Documentario | Ficcao | Animacao"
+    }
+
+    %% Relacionamento N:N direto puro:
+    ObraAudiovisual }o--o{ GeneroObra : "categorizada em"
+
+    %% =============================================
+    %% 3. MÍDIAS E STREAMING (RF01, RF02, RF03, RF05, RF06)
+    %% =============================================
+
+    MidiaStreaming {
+        Long id PK
+        Long obra_id FK
+        String tipo_midia "PRINCIPAL | TRAILER | VIDEO_DIRETOR"
+        String eduplay_embed_url "URL completa do iframe da RNP"
+        String cdn_stream_url "URL assinada CDN"
+        String resolucao "480p | 720p | 1080p"
+        String formato "MP4 | HLS"
+        String player_type "NATIVE | EMBED"
+        Integer duracao_segundos "duracao exata de cada midia"
+        String thumbs_sprite_url
+        DateTime atualizado_em
+    }
+
+    ObraAudiovisual ||--o{ MidiaStreaming : "possui midias associadas"
+
+    %% =============================================
+    %% 4. EVENTOS E FESTIVAIS (RF19)
+    %% =============================================
+
+    Evento {
+        Long id PK
+        String nome "ex: Festival Guarnice"
+        String descricao
+        Date data_inicio
+        Date data_fim
+        String banner_url
+    }
+
+    EventoObra {
+        Long id PK
+        Long evento_id FK
+        Long obra_id FK
+        String categoria "COMPETICAO | MOSTRA | HOMENAGEM"
+        DateTime data_estreia_evento_inicio "janela especifica do evento"
+        DateTime data_estreia_evento_fim
+        String premiacao "MELHOR_FILME | null"
+        Boolean destaque
+    }
+
+    Evento ||--o{ EventoObra : "possui programacao"
+    ObraAudiovisual ||--o{ EventoObra : "exibida em eventos"
+
+    %% =============================================
+    %% 5. PROGRESSO, HISTÓRICO E RECOMENDAÇÃO (RF17, RF18)
+    %% =============================================
+
+    ProgressoVisualizacao {
+        Long id PK
+        UUID usuario_id FK
+        Long obra_id FK
+        Long midia_id FK
+        Integer posicao_segundos "RF18: ponto exato onde parou"
+        DateTime atualizado_em
+    }
+
+    HistoricoVisualizacao {
+        Long id PK
+        UUID usuario_id FK
+        Long obra_id FK
+        Long midia_id FK
+        DateTime data_visualizacao
+        Integer tempo_assistido_segundos
+        Boolean concluido
+    }
+
+    Recomendacao {
+        Long id PK
+        UUID usuario_id FK
+        Long obra_id FK
+        String algoritmo "PREFERENCIA_GENERO | HISTORICO | SIMILAR_DIRETOR"
+        Float score
+        DateTime gerada_em
+    }
+
+    Usuario ||--o{ ProgressoVisualizacao : "tem progresso de"
+    ObraAudiovisual ||--o{ ProgressoVisualizacao : "acompanhada por"
+    MidiaStreaming ||--o{ ProgressoVisualizacao : "midia executada"
+
+    Usuario ||--o{ HistoricoVisualizacao : "possui historico"
+    ObraAudiovisual ||--o{ HistoricoVisualizacao : "assistida em"
+
+    Usuario ||--o{ Recomendacao : "recebe recomendacoes"
+    ObraAudiovisual ||--o{ Recomendacao : "recomendada para"
