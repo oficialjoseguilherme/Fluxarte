@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 @Entity
 @Table(name = "obra_audiovisual")
 @Getter
@@ -19,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"generos", "favoritadaPor", "midias", "eventoObras",
+@ToString(exclude = {"generos", "midias", "eventoObras",
         "progressos", "historicos", "recomendacoes"})
 
 public class ObraAudiovisual {
@@ -72,9 +75,11 @@ public class ObraAudiovisual {
     @Column(name = "classificacao_indicativa", nullable = false, length = 20)
     private ClassificacaoIndicativa classificacaoIndicativa;
 
+    @CreationTimestamp 
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
+    @UpdateTimestamp 
     @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
 
@@ -86,10 +91,6 @@ public class ObraAudiovisual {
     )
     @Builder.Default
     private Set<GeneroObra> generos = new HashSet<>();
-
-    @ManyToMany(mappedBy = "favoritos")
-    @Builder.Default
-    private Set<Usuario> favoritadaPor = new HashSet<>();
 
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

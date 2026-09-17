@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -46,13 +45,12 @@ public class AtividadeUsuario {
     @Column(name = "termo_busca")
     private String termoBusca;
 
-    // TODO: trocar por relacao @ManyToOne com ObraAudiovisual quando essa entidade existir
     @Column(name = "obra_id_referenciada")
     private Long obraIdReferenciada;
 
-    @Lob
-    @Column(name = "metadados_json")
-    private String metadadosJson;
+    //@Lob
+    //@Column(name = "metadados_json")
+    //private String metadadosJson;
 
     @CreationTimestamp
     @Column(name = "registrado_em", updatable = false)

@@ -6,6 +6,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 @Table(name = "recomendacao")
 @Getter
@@ -35,6 +37,7 @@ public class Recomendacao {
 
     private Float score;
 
+    @CreationTimestamp
     @Column(name = "gerada_em", nullable = false, updatable = false)
     private LocalDateTime geradaEm;
 }

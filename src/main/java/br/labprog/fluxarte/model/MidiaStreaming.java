@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.UpdateTimestamp;
+
 @Entity
 @Table(name = "midia_streaming")
 @Getter
@@ -42,6 +44,7 @@ public class MidiaStreaming {
     @Column(name = "cdn_stream_url", columnDefinition = "TEXT")
     private String cdnStreamUrl;
 
+    @Enumerated (EnumType.STRING)
     @Column(length = 10)
     private Resolucao resolucao;
 
@@ -60,9 +63,6 @@ public class MidiaStreaming {
     @Column(name = "thumbs_sprite_url")
     private String thumbsSpriteUrl;
 
-    @Column(name = "atualizado_em")
-    private LocalDateTime atualizadoEm;
-
     @OneToMany(mappedBy = "midia")
     @Builder.Default
     private List<ProgressoVisualizacao> progressos = new ArrayList<>();
@@ -70,5 +70,9 @@ public class MidiaStreaming {
     @OneToMany(mappedBy = "midia")
     @Builder.Default
     private List<HistoricoVisualizacao> historicos = new ArrayList<>();
+
+    @UpdateTimestamp 
+    @Column(name = "atualizado_em")
+    private LocalDateTime atualizadoEm;
 }
 

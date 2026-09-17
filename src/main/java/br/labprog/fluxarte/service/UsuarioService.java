@@ -3,6 +3,7 @@ package br.labprog.fluxarte.service;
 import br.labprog.fluxarte.model.enums.TipoUsuario;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.UsuarioRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,10 +46,12 @@ public class UsuarioService {
                 .orElseThrow(() -> new NoSuchElementException("Usuario nao encontrado: " + id));
     }
 
+
+    // TODO enviar  para o security resolver
     @Transactional
-    public boolean autenticar(String email, String senha) {
+    public boolean autenticar(@NonNull String email, String senha) {
         return usuarioRepository.findByEmail(email)
-                .filter(Usuario::getAtivo)
+                .filter(usuario -> Boolean.TRUE.equals(usuario.getAtivo()))
                 .map(usuario -> passwordEncoder.matches(senha, usuario.getSenhaHash()))
                 .orElse(false);
     }

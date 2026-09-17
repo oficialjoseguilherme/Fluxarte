@@ -7,7 +7,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "evento_obra", uniqueConstraints = @UniqueConstraint(columnNames = {"evento_id", "obra_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,6 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"evento", "obra"})
+@Table(name = "evento_obra", uniqueConstraints = @UniqueConstraint(columnNames = {"evento_id", "obra_id"}))
 
 public class EventoObra {
     @Id

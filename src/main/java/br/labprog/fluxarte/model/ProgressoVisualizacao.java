@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.UpdateTimestamp;
+
 @Entity
 @Table(
         name = "progresso_visualizacao",
@@ -39,6 +41,7 @@ public class ProgressoVisualizacao {
     @Column(name = "posicao_segundos", nullable = false)
     private Integer posicaoSegundos;
 
+    @UpdateTimestamp 
     @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
 

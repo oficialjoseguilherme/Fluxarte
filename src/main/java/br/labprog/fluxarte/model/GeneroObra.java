@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"obras", "usuariosQuePreferem"})
+@ToString(exclude = "obras")
 public class GeneroObra {
 
     @Id
@@ -29,8 +29,4 @@ public class GeneroObra {
     @ManyToMany(mappedBy = "generos")
     @Builder.Default
     private Set<ObraAudiovisual> obras = new HashSet<>();
-
-    @ManyToMany(mappedBy = "generosPreferidos")
-    @Builder.Default
-    private Set<Usuario> usuariosQuePreferem = new HashSet<>();
 }
