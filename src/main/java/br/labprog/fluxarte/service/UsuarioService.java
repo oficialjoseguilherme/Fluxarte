@@ -1,6 +1,6 @@
 package br.labprog.fluxarte.service;
 
-import br.labprog.fluxarte.model.TipoUsuario;
+import br.labprog.fluxarte.model.enums.TipoUsuario;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;

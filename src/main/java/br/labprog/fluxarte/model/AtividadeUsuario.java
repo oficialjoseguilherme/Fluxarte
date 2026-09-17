@@ -1,5 +1,6 @@
 package br.labprog.fluxarte.model;
 
+import br.labprog.fluxarte.model.enums.TipoAtividade;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

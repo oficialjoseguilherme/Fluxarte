@@ -1,5 +1,6 @@
 package br.labprog.fluxarte.model;
 
+import br.labprog.fluxarte.model.enums.TipoUsuario;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +15,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;

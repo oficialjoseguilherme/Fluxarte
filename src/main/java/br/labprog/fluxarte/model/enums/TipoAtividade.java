@@ -1,4 +1,4 @@
-package br.labprog.fluxarte.model;
+package br.labprog.fluxarte.model.enums;
 
 public enum TipoAtividade {
     BUSCA,

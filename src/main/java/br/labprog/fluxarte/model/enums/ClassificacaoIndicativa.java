@@ -19,7 +19,6 @@ public enum ClassificacaoIndicativa {
         return idadeMinima;
     }
 
-    /** Conteudo adulto, sujeito ao filtro de preferencia familiar do usuario. */
     public boolean isAdulto() {
         return idadeMinima >= 18;
     }

@@ -1,7 +1,7 @@
 package br.labprog.fluxarte.model.enums;
 
-public enum TipoMidia {
-    PRINCIPAL,
-    TRAILER,
-    VIDEO_DIRETOR
+public enum NomeGenero {
+    DOCUMENTARIO,
+    FICCAO,
+    ANIMACAO
 }

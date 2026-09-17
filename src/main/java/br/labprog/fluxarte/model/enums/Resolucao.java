@@ -1,10 +1,5 @@
 package br.labprog.fluxarte.model.enums;
 
-/**
- * Resolucao do arquivo de midia. Os valores do diagrama (480p, 720p, 1080p) nao sao
- * identificadores Java validos, entao as constantes carregam o valor real e a
- * persistencia usa ResolucaoConverter.
- */
 public enum Resolucao {
 
     R480P("480p"),
