@@ -4,9 +4,6 @@ import br.labprog.fluxarte.model.enums.NomeGenero;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Table(name = "genero_obra")
 @Getter
@@ -15,7 +12,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = "obras")
 public class GeneroObra {
 
     @Id
@@ -25,8 +21,4 @@ public class GeneroObra {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true, length = 20)
     private NomeGenero nome;
-
-    @ManyToMany(mappedBy = "generos")
-    @Builder.Default
-    private Set<ObraAudiovisual> obras = new HashSet<>();
 }
