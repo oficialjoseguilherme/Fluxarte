@@ -1,6 +1,9 @@
 package br.labprog.fluxarte.model;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
