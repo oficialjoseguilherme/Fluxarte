@@ -72,6 +72,37 @@ Também existem testes unitários, sem acesso ao banco, para:
 - validar as regras de `ClassificacaoIndicativa`;
 - converter os valores de `Resolucao` e rejeitar valores inválidos.
 
+## Testes da camada de serviços
+
+Os testes em `src/test/java/br/labprog/fluxarte/service` exercitam os services
+com o contexto real do Spring e o mesmo banco H2 utilizado pelos testes de
+repository. Os repositories são usados para preparar e conferir o cenário, mas
+a ação avaliada é sempre realizada pelo service.
+
+A camada possui 46 testes distribuídos entre os 10 services:
+
+- usuário e autenticação: cadastro, senha codificada, autenticação, emissão,
+  rotação e revogação de tokens;
+- catálogo: cadastro, atualização, validação e consulta de obras e mídias;
+- eventos: regras de datas, programação, destaques e vínculos duplicados;
+- visualização: criação e atualização de progresso, histórico e ordenação;
+- atividades: requisitos específicos de buscas e ações ligadas a obras;
+- recomendações: preferência de gênero, histórico, diretor, classificação
+  indicativa, substituição de resultados antigos e limite de 20 itens.
+
+### Contratos pendentes de `UsuarioService`
+
+Três testes documentam regras solicitadas no material da disciplina que ainda
+não foram implementadas em `UsuarioService.cadastrar`:
+
+- rejeitar nome em branco;
+- rejeitar e-mail em branco;
+- rejeitar senha em branco.
+
+Esses testes não estão desabilitados. Por isso, a suíte completa termina com
+três falhas conhecidas até que essas validações sejam adicionadas ao service.
+Os outros 43 testes de serviço passam normalmente.
+
 ### Como executar
 
 No Windows:
@@ -86,8 +117,15 @@ No Linux ou macOS:
 ./mvnw test
 ```
 
-Uma execução bem-sucedida deve terminar com `BUILD SUCCESS`. Atualmente, a
-suíte contém 29 testes e não precisa de uma instância local do PostgreSQL.
+A suíte possui 75 testes no total e não precisa de uma instância local do
+PostgreSQL. Enquanto os três contratos acima estiverem pendentes, a execução
+completa apresentará 3 falhas esperadas e 72 testes aprovados.
+
+Para executar somente os 29 testes anteriores, que permanecem verdes:
+
+```powershell
+cmd.exe /d /c mvnw.cmd -q "-Dtest=FluxarteApplicationTests,br.labprog.fluxarte.model.*Test,br.labprog.fluxarte.model.repository.*Test" test
+```
 
 Os relatórios gerados pelo Maven ficam disponíveis em
 `target/surefire-reports`.
