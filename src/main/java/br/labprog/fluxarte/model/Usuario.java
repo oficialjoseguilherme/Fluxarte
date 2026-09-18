@@ -1,15 +1,7 @@
 package br.labprog.fluxarte.model;
 
 import br.labprog.fluxarte.model.enums.TipoUsuario;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,6 +55,24 @@ public class Usuario {
     @Builder.Default
     private TipoUsuario tipoUsuario = TipoUsuario.ESPECTADOR;
 
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_genero_preferido",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "genero_id")
+    )
+    @Builder.Default
+    private Set<GeneroObra> generosPreferidos = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_favorito",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "obra_id")
+    )
+    @Builder.Default
+    private Set<ObraAudiovisual> favoritos = new HashSet<>();
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean ativo = true;
@@ -74,24 +84,6 @@ public class Usuario {
     @UpdateTimestamp
     @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
-
-    @ManyToMany
-    @JoinTable(
-        name = "usuario_obras_favoritas",
-        joinColumns = @JoinColumn(name = "usuario_id"),
-        inverseJoinColumns = @JoinColumn(name = "obra_id")
-    )
-    @Builder.Default
-    private Set<ObraAudiovisual> favoritos = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-        name = "usuario_generos_preferidos",
-        joinColumns = @JoinColumn(name = "usuario_id"),
-        inverseJoinColumns = @JoinColumn(name = "genero_id")
-    )
-    @Builder.Default
-    private Set<GeneroObra> generosPreferidos = new HashSet<>();
 
 
 }
