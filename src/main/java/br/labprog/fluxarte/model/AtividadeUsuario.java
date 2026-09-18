@@ -1,17 +1,7 @@
 package br.labprog.fluxarte.model;
 
 import br.labprog.fluxarte.model.enums.TipoAtividade;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,9 +38,9 @@ public class AtividadeUsuario {
     @Column(name = "obra_id_referenciada")
     private Long obraIdReferenciada;
 
-    //@Lob
-    //@Column(name = "metadados_json")
-    //private String metadadosJson;
+    @Lob
+    @Column(name = "metadados_json")
+    private String metadadosJson;
 
     @CreationTimestamp
     @Column(name = "registrado_em", updatable = false)
