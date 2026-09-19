@@ -2,6 +2,7 @@ package br.labprog.fluxarte.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -32,7 +33,8 @@ public class HistoricoVisualizacao {
     @JoinColumn(name = "midia_id", nullable = false)
     private MidiaStreaming midia;
 
-    @Column(name = "data_visualizacao", nullable = false)
+    @CreationTimestamp
+    @Column(name = "data_visualizacao", nullable = false, updatable = false)
     private LocalDateTime dataVisualizacao;
 
     @Column(name = "tempo_assistido_segundos")
