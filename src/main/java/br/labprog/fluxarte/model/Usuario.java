@@ -43,7 +43,7 @@ public class Usuario {
     @Column(name = "nome_exibicao")
     private String nomeExibicao;
 
-    @Column(name = "data_nascimento")
+    @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
     @Column(name = "aceita_conteudo_adulto", nullable = false)

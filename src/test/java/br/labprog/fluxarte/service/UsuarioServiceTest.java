@@ -1,5 +1,7 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.UsuarioCadastroRequest;
+import br.labprog.fluxarte.dto.response.UsuarioResponse;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.model.enums.TipoUsuario;
 import org.junit.jupiter.api.Test;
@@ -19,12 +21,10 @@ class UsuarioServiceTest extends AbstractServiceTest {
 
     @Test
     void deveCadastrarUsuarioComSenhaCodificadaEValoresPadrao() {
-        // cenário e ação
         Usuario salvo = service.cadastrar("Ana", "ana@teste.com", "segredo",
                 LocalDate.of(2000, 5, 10));
         flushAndClear();
 
-        // verificação
         Usuario recuperado = usuarioRepository.findById(salvo.getId()).orElseThrow();
         assertEquals("Ana", recuperado.getNome());
         assertEquals("Ana", recuperado.getNomeExibicao());
@@ -33,6 +33,23 @@ class UsuarioServiceTest extends AbstractServiceTest {
         assertEquals(TipoUsuario.ESPECTADOR, recuperado.getTipoUsuario());
         assertTrue(recuperado.getAtivo());
         assertFalse(recuperado.getAceitaConteudoAdulto());
+    }
+
+    @Test
+    void deveCadastrarViaDtoComSucesso() {
+        UsuarioCadastroRequest request = new UsuarioCadastroRequest(
+                "Carlos", "carlos@teste.com", "senhaForte123",
+                LocalDate.of(1995, 3, 15), "Carlinhos", true);
+
+        UsuarioResponse response = service.cadastrar(request);
+        flushAndClear();
+
+        assertNotNull(response.id());
+        assertEquals("Carlos", response.nome());
+        assertEquals("carlos@teste.com", response.email());
+        assertEquals("Carlinhos", response.nomeExibicao());
+        assertTrue(response.aceitaConteudoAdulto());
+        assertTrue(response.ativo());
     }
 
     @Test
@@ -48,7 +65,9 @@ class UsuarioServiceTest extends AbstractServiceTest {
     void deveBuscarUsuarioOuInformarAusencia() {
         Usuario usuario = salvarUsuario("buscar@teste.com");
 
-        assertEquals(usuario.getId(), service.buscarPorId(usuario.getId()).getId());
+        assertEquals(usuario.getId(), service.buscarPorId(usuario.getId()).id());
+        assertEquals(usuario.getId(), service.buscarEntidadePorId(usuario.getId()).getId());
+
         NoSuchElementException erro = assertThrows(NoSuchElementException.class,
                 () -> service.buscarPorId(UUID.randomUUID()));
         assertTrue(erro.getMessage().startsWith("Usuario nao encontrado:"));
@@ -67,7 +86,6 @@ class UsuarioServiceTest extends AbstractServiceTest {
         assertFalse(service.autenticar("login@teste.com", "correta"));
     }
 
-    // Contratos esperados pelo material da disciplina; permanecem vermelhos até o service validar os campos.
     @Test
     void deveGerarErroAoCadastrarSemNome() {
         assertThrows(IllegalArgumentException.class,

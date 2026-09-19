@@ -29,7 +29,7 @@ public class ProgressoVisualizacaoService {
             throw new IllegalArgumentException("Posicao deve ser maior ou igual a zero");
         }
 
-        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
         MidiaStreaming midia = midiaService.buscarPorId(midiaId);
 
         if (midia.getDuracaoSegundos() != null && posicaoSegundos > midia.getDuracaoSegundos()) {

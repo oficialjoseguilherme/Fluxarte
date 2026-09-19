@@ -9,27 +9,21 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record MidiaStreamingRequest(
-    @NotNull(message = "O ID da obra audiovisual é obrigatório")
-    Long obraId,
+        @NotNull(message = "O ID da obra audiovisual é obrigatório") Long obraId,
 
-    @NotNull(message = "O tipo da mídia é obrigatório")
-    TipoMidia tipoMidia,
+        @NotNull(message = "O tipo da mídia é obrigatório") TipoMidia tipoMidia,
 
-    @NotNull(message = "O tipo de player é obrigatório")
-    TipoPlayer playerType,
+        @NotNull(message = "O tipo de player é obrigatório") TipoPlayer playerType,
 
-    String eduplayEmbedUrl,
-    String cdnStreamUrl,
+        String eduplayEmbedUrl,
+        String cdnStreamUrl,
 
-    Resolucao resolucao,
-    FormatoMidia formato,
+        Resolucao resolucao,
+        FormatoMidia formato,
 
-    @NotNull(message = "A duração em segundos é obrigatória")
-    @Positive(message = "A duração deve ser maior que zero")
-    Integer duracaoSegundos,
+        @NotNull(message = "A duração em segundos é obrigatória") @Positive(message = "A duração deve ser maior que zero") Integer duracaoSegundos,
 
-    String thumbsSpriteUrl
-) {
+        String thumbsSpriteUrl) {
     @AssertTrue(message = "O player incorporado exige a URL do Eduplay, o player nativo exige a URL de transmissão da CDN.")
     public boolean isUrlPlayerValida() {
         if (playerType == TipoPlayer.EMBED) {

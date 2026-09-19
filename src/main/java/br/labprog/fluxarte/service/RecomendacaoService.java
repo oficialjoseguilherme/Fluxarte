@@ -39,7 +39,7 @@ public class RecomendacaoService {
     // Uma obra so aparece uma vez, com o algoritmo que deu o maior score para ela.
     @Transactional
     public List<Recomendacao> gerarParaUsuario(UUID usuarioId) {
-        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
         List<HistoricoVisualizacao> historico = historicoService.listarPorUsuario(usuarioId);
 
         // obras ja assistidas, por id (sem repeticao)

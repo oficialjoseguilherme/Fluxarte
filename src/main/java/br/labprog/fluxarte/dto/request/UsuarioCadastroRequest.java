@@ -34,7 +34,8 @@ public record UsuarioCadastroRequest(
     public UsuarioCadastroRequest {
         if (nome != null) nome = nome.trim();
         if (email != null) email = email.trim().toLowerCase();
-        if (nomeExibicao != null) nomeExibicao = nomeExibicao.trim();
+        if (nomeExibicao == null || nomeExibicao.isBlank()) nomeExibicao = nome;
+        else nomeExibicao = nomeExibicao.trim();
         if (aceitaConteudoAdulto == null) aceitaConteudoAdulto = false;
     }
 }

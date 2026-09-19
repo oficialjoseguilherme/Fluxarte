@@ -14,50 +14,46 @@ import java.time.Year;
 import java.util.Set;
 
 public record ObraAudiovisualRequest(
-    @NotBlank(message = "O título da obra é obrigatório")
-    @Size(max = 225, message = "O título não pode exceder 225 caracteres")
-    String titulo,
+        @NotBlank(message = "O título da obra é obrigatório") @Size(max = 225, message = "O título não pode exceder 225 caracteres") String titulo,
 
-    @Size(max = 225, message = "O título original não pode exceder 225 caracteres")
-    String tituloOriginal,
+        @Size(max = 225, message = "O título original não pode exceder 225 caracteres") String tituloOriginal,
 
-    @Size(max = 200, message = "O nome do diretor não pode exceder 200 caracteres")
-    String diretor,
+        @Size(max = 200, message = "O nome do diretor não pode exceder 200 caracteres") String diretor,
 
-    String sinopse,
+        String sinopse,
 
-    @Min(value = 1800, message = "O ano de produção não pode ser anterior a 1800")
-    Integer anoProducao,
+        @Min(value = 1800, message = "O ano de produção não pode ser anterior a 1800") Integer anoProducao,
 
-    @Size(max = 10, message = "O código de idioma deve ter no máximo 10 caracteres")
-    String idiomaOriginal,
+        @Size(max = 10, message = "O código de idioma deve ter no máximo 10 caracteres") String idiomaOriginal,
 
-    String posterUrl,
-    String bannerUrl,
+        String posterUrl,
+        String bannerUrl,
 
-    Boolean disponivel,
+        Boolean disponivel,
 
-    @NotNull(message = "O status da obra é obrigatório")
-    StatusObra status,
+        @NotNull(message = "O status da obra é obrigatório") StatusObra status,
 
-    LocalDateTime dataInicioExibicao,
-    LocalDateTime dataFimExibicao,
+        LocalDateTime dataInicioExibicao,
+        LocalDateTime dataFimExibicao,
 
-    @NotNull(message = "A classificação indicativa é obrigatória")
-    ClassificacaoIndicativa classificacaoIndicativa,
+        @NotNull(message = "A classificação indicativa é obrigatória") ClassificacaoIndicativa classificacaoIndicativa,
 
-    Set<NomeGenero> generos
-) {
+        Set<NomeGenero> generos) {
     public ObraAudiovisualRequest {
-        if (titulo != null) titulo = titulo.trim();
-        if (diretor != null) diretor = diretor.trim();
-        if (disponivel == null) disponivel = false;
-        if (status == null) status = StatusObra.RASCUNHO;
+        if (titulo != null)
+            titulo = titulo.trim();
+        if (diretor != null)
+            diretor = diretor.trim();
+        if (disponivel == null)
+            disponivel = false;
+        if (status == null)
+            status = StatusObra.RASCUNHO;
     }
 
     @AssertTrue(message = "O ano de produção não pode ser no futuro")
     public boolean isAnoProducaoValido() {
-        if (anoProducao == null) return true;
+        if (anoProducao == null)
+            return true;
         return anoProducao <= Year.now().getValue();
     }
 

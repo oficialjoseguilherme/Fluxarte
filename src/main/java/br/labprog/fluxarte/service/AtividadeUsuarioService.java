@@ -28,7 +28,7 @@ public class AtividadeUsuarioService {
             throw new IllegalArgumentException("Tipo da atividade e obrigatorio");
         }
 
-        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
 
         if (tipo == TipoAtividade.BUSCA) {
             if (termoBusca == null || termoBusca.isBlank()) {

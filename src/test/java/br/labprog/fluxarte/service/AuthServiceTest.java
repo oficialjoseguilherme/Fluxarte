@@ -1,5 +1,8 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.LoginRequest;
+import br.labprog.fluxarte.dto.request.RefreshTokenRequest;
+import br.labprog.fluxarte.dto.response.LoginResponse;
 import br.labprog.fluxarte.model.RefreshToken;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.RefreshTokenRepository;
@@ -34,6 +37,17 @@ class AuthServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    void deveFazerLoginViaDto() {
+        Usuario usuario = usuarioService.cadastrar("AuthDto", "authdto@teste.com", "senha123", null);
+        LoginResponse response = service.login(new LoginRequest("authdto@teste.com", "senha123"));
+
+        assertNotNull(response);
+        assertNotNull(response.refreshToken());
+        assertEquals("Bearer", response.tipo());
+        assertEquals(usuario.getId(), response.usuarioId());
+    }
+
+    @Test
     void deveOcultarMotivoDasCredenciaisInvalidas() {
         usuarioService.cadastrar("Auth", "credencial@teste.com", "certa", null);
 
@@ -59,18 +73,64 @@ class AuthServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void deveRejeitarTokenInexistenteExpiradoOuDeUsuarioInativo() {
+    void deveRotacionarViaDto() {
+        usuarioService.cadastrar("AuthRotDto", "rotdto@teste.com", "senha123", null);
+        LoginResponse login = service.login(new LoginRequest("rotdto@teste.com", "senha123"));
+
+        LoginResponse novo = service.renovar(new RefreshTokenRequest(login.refreshToken()));
+        flushAndClear();
+
+        assertNotEquals(login.refreshToken(), novo.refreshToken());
+        assertEquals(login.usuarioId(), novo.usuarioId());
+    }
+
+    @Test
+    void deveRevogarTokenExpiradoAoTentarRenovar() {
+        Usuario usuario = salvarUsuario("token-exp@teste.com");
+        RefreshToken expirado = refreshTokenRepository.saveAndFlush(token(usuario, "token-expirado",
+                LocalDateTime.now().minusMinutes(5)));
+
+        BadCredentialsException erro = assertThrows(BadCredentialsException.class,
+                () -> service.renovar(expirado.getToken()));
+        assertEquals("Refresh token expirado", erro.getMessage());
+
+        RefreshToken atualizado = refreshTokenRepository.findById(expirado.getId()).orElseThrow();
+        assertTrue(atualizado.getRevogado());
+    }
+
+    @Test
+    void deveDetectarTentativaDeReusoDeSessaoRevogada() {
+        Usuario usuario = salvarUsuario("token-reuso@teste.com");
+        RefreshToken revogado = refreshTokenRepository.saveAndFlush(
+                RefreshToken.builder()
+                        .usuario(usuario)
+                        .token("token-ja-revogado")
+                        .expiraEm(LocalDateTime.now().plusDays(10))
+                        .revogado(true)
+                        .build());
+
+        RefreshToken sessaoAtiva = refreshTokenRepository.saveAndFlush(
+                RefreshToken.builder()
+                        .usuario(usuario)
+                        .token("sessao-ativa")
+                        .expiraEm(LocalDateTime.now().plusDays(10))
+                        .revogado(false)
+                        .build());
+
+        BadCredentialsException erro = assertThrows(BadCredentialsException.class,
+                () -> service.renovar(revogado.getToken()));
+        assertEquals("Tentativa de reuso de sessao detectada", erro.getMessage());
+
+        assertTrue(refreshTokenRepository.findById(sessaoAtiva.getId()).orElseThrow().getRevogado());
+    }
+
+    @Test
+    void deveRejeitarTokenInexistenteOuDeUsuarioInativo() {
         BadCredentialsException inexistente = assertThrows(BadCredentialsException.class,
                 () -> service.renovar("inexistente"));
         assertEquals("Refresh token invalido", inexistente.getMessage());
 
-        Usuario usuario = salvarUsuario("token-erros@teste.com");
-        RefreshToken expirado = refreshTokenRepository.saveAndFlush(token(usuario, "expirado",
-                LocalDateTime.now().minusMinutes(1)));
-        BadCredentialsException erroExpirado = assertThrows(BadCredentialsException.class,
-                () -> service.renovar(expirado.getToken()));
-        assertEquals("Refresh token expirado", erroExpirado.getMessage());
-
+        Usuario usuario = salvarUsuario("token-inativo@teste.com");
         RefreshToken inativo = refreshTokenRepository.saveAndFlush(token(usuario, "inativo",
                 LocalDateTime.now().plusDays(1)));
         usuario.setAtivo(false);

@@ -29,7 +29,7 @@ public class HistoricoVisualizacaoService {
             throw new IllegalArgumentException("Tempo assistido nao pode ser negativo");
         }
 
-        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
         MidiaStreaming midia = midiaService.buscarPorId(midiaId);
 
         HistoricoVisualizacao historico = HistoricoVisualizacao.builder()
