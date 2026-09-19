@@ -25,6 +25,15 @@ public class UsuarioService {
         if (usuarioRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Ja existe um usuario cadastrado com esse email");
         }
+        if (nome == null || nome.isBlank()) {
+            throw new IllegalArgumentException("O nome não pode ser nulo ou em branco.");
+        }
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("O email não pode ser nulo ou em branco.");
+        }
+        if (senha == null || senha.isBlank()) {
+            throw new IllegalArgumentException("A senha não pode ser nula ou em branco");
+        }
 
         Usuario usuario = Usuario.builder()
                 .nome(nome)

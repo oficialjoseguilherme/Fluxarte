@@ -71,18 +71,18 @@ class UsuarioServiceTest extends AbstractServiceTest {
     @Test
     void deveGerarErroAoCadastrarSemNome() {
         assertThrows(IllegalArgumentException.class,
-                () -> service.cadastrar(" ", "sem-nome@teste.com", "senha", null));
+                () -> service.cadastrar(null, "sem-nome@teste.com", "senha", null));
     }
 
     @Test
     void deveGerarErroAoCadastrarSemEmail() {
         assertThrows(IllegalArgumentException.class,
-                () -> service.cadastrar("Sem email", " ", "senha", null));
+                () -> service.cadastrar("Sem email", null, "senha", null));
     }
 
     @Test
     void deveGerarErroAoCadastrarSemSenha() {
         assertThrows(IllegalArgumentException.class,
-                () -> service.cadastrar("Sem senha", "sem-senha@teste.com", " ", null));
+                () -> service.cadastrar("Sem senha", "sem-senha@teste.com", null, null));
     }
 }
