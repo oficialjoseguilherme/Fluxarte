@@ -1,7 +1,11 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.MidiaStreamingRequest;
+import br.labprog.fluxarte.dto.response.MidiaStreamingResponse;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
+import br.labprog.fluxarte.model.enums.FormatoMidia;
+import br.labprog.fluxarte.model.enums.Resolucao;
 import br.labprog.fluxarte.model.enums.TipoMidia;
 import br.labprog.fluxarte.model.enums.TipoPlayer;
 import org.junit.jupiter.api.Test;
@@ -29,9 +33,50 @@ class MidiaStreamingServiceTest extends AbstractServiceTest {
         assertEquals(TipoMidia.TRAILER, atualizada.getTipoMidia());
         assertEquals(90, atualizada.getDuracaoSegundos());
         assertNotNull(atualizada.getAtualizadoEm());
-        assertEquals(atualizada.getId(), service.buscarPorId(atualizada.getId()).getId());
+        assertEquals(atualizada.getId(), service.buscarPorId(atualizada.getId()).id());
+        assertEquals(atualizada.getId(), service.buscarEntidadePorId(atualizada.getId()).getId());
         assertEquals(1, service.listarPorObra(obra.getId()).size());
         assertEquals(1, service.listarPorObraETipo(obra.getId(), TipoMidia.TRAILER).size());
+    }
+
+    @Test
+    void deveCadastrarEAtualizarViaDto() {
+        ObraAudiovisual obra = salvarObra("Obra DTO Midia");
+        MidiaStreamingRequest requestCadastro = new MidiaStreamingRequest(
+                obra.getId(),
+                TipoMidia.PRINCIPAL,
+                TipoPlayer.NATIVE,
+                null,
+                "https://cdn.test/video-dto.m3u8",
+                Resolucao.R1080P,
+                FormatoMidia.HLS,
+                3600,
+                "https://cdn.test/sprite-dto.jpg"
+        );
+
+        MidiaStreamingResponse response = service.cadastrar(requestCadastro);
+
+        assertNotNull(response.id());
+        assertEquals(obra.getId(), response.obraId());
+        assertEquals(TipoMidia.PRINCIPAL, response.tipoMidia());
+        assertEquals(3600, response.duracaoSegundos());
+
+        MidiaStreamingRequest requestAtualizacao = new MidiaStreamingRequest(
+                obra.getId(),
+                TipoMidia.TRAILER,
+                TipoPlayer.NATIVE,
+                null,
+                "https://cdn.test/trailer-dto.m3u8",
+                Resolucao.R720P,
+                FormatoMidia.MP4,
+                120,
+                null
+        );
+
+        MidiaStreamingResponse atualizada = service.atualizar(response.id(), requestAtualizacao);
+        assertEquals(TipoMidia.TRAILER, atualizada.tipoMidia());
+        assertEquals(120, atualizada.duracaoSegundos());
+        assertEquals(Resolucao.R720P, atualizada.resolucao());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.ObraAudiovisualRequest;
+import br.labprog.fluxarte.dto.response.ObraAudiovisualResponse;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.enums.ClassificacaoIndicativa;
 import br.labprog.fluxarte.model.enums.NomeGenero;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,6 +40,62 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    void deveCadastrarViaDtoComSucesso() {
+        ObraAudiovisualRequest request = new ObraAudiovisualRequest(
+                "  Documentario DTO  ",
+                "Original Title",
+                "Diretor DTO",
+                "Sinopse explicativa",
+                2024,
+                "pt-BR",
+                "https://cdn.test/poster.jpg",
+                "https://cdn.test/banner.jpg",
+                null,
+                null,
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(10),
+                ClassificacaoIndicativa.LIVRE,
+                Set.of(NomeGenero.DOCUMENTARIO)
+        );
+
+        ObraAudiovisualResponse response = service.cadastrar(request);
+
+        assertNotNull(response.id());
+        assertEquals("Documentario DTO", response.titulo());
+        assertEquals("Diretor DTO", response.diretor());
+        assertEquals(ClassificacaoIndicativa.LIVRE, response.classificacaoIndicativa());
+    }
+
+    @Test
+    void deveAtualizarViaDtoSemAlterarStatusEDisponibilidade() {
+        ObraAudiovisual existente = salvarObra("Obra DTO Antes");
+        ObraAudiovisualRequest request = new ObraAudiovisualRequest(
+                "  Obra DTO Atualizada  ",
+                "Original Title Updated",
+                "Novo Diretor",
+                "Nova Sinopse",
+                2023,
+                "pt-BR",
+                null,
+                null,
+                false,
+                StatusObra.INATIVO,
+                null,
+                null,
+                ClassificacaoIndicativa.QUATORZE,
+                null
+        );
+
+        ObraAudiovisualResponse response = service.atualizar(existente.getId(), request);
+
+        assertEquals("Obra DTO Atualizada", response.titulo());
+        assertEquals("Novo Diretor", response.diretor());
+        ObraAudiovisual recarregada = service.buscarEntidadePorId(existente.getId());
+        assertEquals(StatusObra.ATIVO, recarregada.getStatus());
+        assertTrue(recarregada.getDisponivel());
+    }
+
+    @Test
     void deveAtualizarDadosSemAlterarStatusEDisponibilidade() {
         ObraAudiovisual existente = salvarObra("Antes");
         ObraAudiovisual dados = ServiceFixtures.obra("  Depois  ");
@@ -55,7 +114,7 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
     @Test
     void deveValidarDadosObrigatoriosEJanela() {
         assertEquals("Dados da obra sao obrigatorios",
-                assertThrows(IllegalArgumentException.class, () -> service.cadastrar(null)).getMessage());
+                assertThrows(IllegalArgumentException.class, () -> service.cadastrar((ObraAudiovisual) null)).getMessage());
         ObraAudiovisual semTitulo = ServiceFixtures.obra("x");
         semTitulo.setTitulo(" ");
         assertEquals("Titulo da obra e obrigatorio",
@@ -77,7 +136,8 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
         obra.setDiretor("Diretor Único");
         obraRepository.saveAndFlush(obra);
 
-        assertEquals(obra.getId(), service.buscarPorId(obra.getId()).getId());
+        assertEquals(obra.getId(), service.buscarPorId(obra.getId()).id());
+        assertEquals(obra.getId(), service.buscarEntidadePorId(obra.getId()).getId());
         assertFalse(service.listarTodas().isEmpty());
         assertEquals(1, service.buscarPorTitulo("especial").size());
         assertEquals(1, service.buscarPorDiretor("único").size());
@@ -107,7 +167,7 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
         service.adicionarGenero(primeira.getId(), NomeGenero.DOCUMENTARIO);
 
         assertEquals(1, generoRepository.count());
-        assertEquals(1, service.buscarPorId(primeira.getId()).getGeneros().size());
+        assertEquals(1, service.buscarPorId(primeira.getId()).generos().size());
         assertTrue(service.removerGenero(primeira.getId(), NomeGenero.DOCUMENTARIO).getGeneros().isEmpty());
         assertThrows(IllegalArgumentException.class, () -> service.adicionarGenero(primeira.getId(), null));
         assertThrows(IllegalArgumentException.class, () -> service.removerGenero(primeira.getId(), null));

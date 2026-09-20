@@ -1,5 +1,7 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.ProgressoVisualizacaoRequest;
+import br.labprog.fluxarte.dto.response.ProgressoVisualizacaoResponse;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.ProgressoVisualizacao;
@@ -8,6 +10,8 @@ import br.labprog.fluxarte.model.enums.TipoMidia;
 import br.labprog.fluxarte.repository.ProgressoVisualizacaoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +35,42 @@ class ProgressoVisualizacaoServiceTest extends AbstractServiceTest {
         assertEquals(obra.getId(), atualizado.getObra().getId());
         assertEquals(midia.getId(), atualizado.getMidia().getId());
         assertNotNull(atualizado.getAtualizadoEm());
+    }
+
+    @Test
+    void deveSalvarProgressoViaDto() {
+        Usuario usuario = salvarUsuario("progresso-dto@teste.com");
+        ObraAudiovisual obra = salvarObra("Progresso DTO");
+        MidiaStreaming midia = salvarMidia(obra, TipoMidia.PRINCIPAL);
+
+        ProgressoVisualizacaoRequest request = new ProgressoVisualizacaoRequest(midia.getId(), 600);
+        Optional<ProgressoVisualizacaoResponse> response = service.salvarProgresso(usuario.getId(), request);
+
+        assertTrue(response.isPresent());
+        assertEquals(obra.getId(), response.get().obraId());
+        assertEquals(midia.getId(), response.get().midiaId());
+        assertEquals(600, response.get().posicaoSegundos());
+        assertEquals(1200, response.get().duracaoTotalSegundos());
+        assertEquals(50.0, response.get().percentualAssistido(), 0.01);
+    }
+
+    @Test
+    void deveExpurgarProgressoQuando100PorcentoAssistido() {
+        Usuario usuario = salvarUsuario("progresso-concluido@teste.com");
+        ObraAudiovisual obra = salvarObra("Progresso Concluido");
+        MidiaStreaming midia = salvarMidia(obra, TipoMidia.PRINCIPAL);
+
+        service.salvarProgresso(usuario.getId(), midia.getId(), 500);
+        assertTrue(service.buscarProgresso(usuario.getId(), midia.getId()).isPresent());
+
+        ProgressoVisualizacao concluido = service.salvarProgresso(usuario.getId(), midia.getId(), 1200);
+        assertNull(concluido);
+        assertTrue(service.buscarProgresso(usuario.getId(), midia.getId()).isEmpty());
+
+        ProgressoVisualizacaoRequest requestConclusao = new ProgressoVisualizacaoRequest(midia.getId(), 1200);
+        Optional<ProgressoVisualizacaoResponse> responseConclusao = service.salvarProgresso(usuario.getId(), requestConclusao);
+        assertTrue(responseConclusao.isEmpty());
+        assertTrue(service.buscarProgressoResponse(usuario.getId(), midia.getId()).isEmpty());
     }
 
     @Test

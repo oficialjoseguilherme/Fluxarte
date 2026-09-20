@@ -1,5 +1,8 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.MidiaStreamingRequest;
+import br.labprog.fluxarte.dto.response.MidiaStreamingResponse;
+import br.labprog.fluxarte.mapper.MidiaStreamingMapper;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.enums.TipoMidia;
@@ -19,36 +22,55 @@ public class MidiaStreamingService {
 
     private final MidiaStreamingRepository midiaRepository;
     private final ObraAudiovisualService obraService;
+    private final MidiaStreamingMapper midiaMapper;
 
-    // uma obra pode ter varias midias (ex: a mesma PRINCIPAL em 480p, 720p e 1080p)
+    @Transactional
+    public MidiaStreamingResponse cadastrar(MidiaStreamingRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Dados da midia sao obrigatorios");
+        }
+
+        ObraAudiovisual obra = obraService.buscarEntidadePorId(request.obraId());
+
+        MidiaStreaming midia = midiaMapper.toEntity(request);
+        midia.setObra(obra);
+        midia.setAtualizadoEm(LocalDateTime.now());
+
+        MidiaStreaming salva = midiaRepository.save(midia);
+        return midiaMapper.toResponse(salva);
+    }
+
     @Transactional
     public MidiaStreaming cadastrar(Long obraId, MidiaStreaming dados) {
         validar(dados);
 
-        ObraAudiovisual obra = obraService.buscarPorId(obraId);
+        ObraAudiovisual obra = obraService.buscarEntidadePorId(obraId);
 
-        MidiaStreaming midia = MidiaStreaming.builder()
-                .obra(obra)
-                .tipoMidia(dados.getTipoMidia())
-                .eduplayEmbedUrl(dados.getEduplayEmbedUrl())
-                .cdnStreamUrl(dados.getCdnStreamUrl())
-                .resolucao(dados.getResolucao())
-                .formato(dados.getFormato())
-                .playerType(dados.getPlayerType())
-                .duracaoSegundos(dados.getDuracaoSegundos())
-                .thumbsSpriteUrl(dados.getThumbsSpriteUrl())
-                .atualizadoEm(LocalDateTime.now())
-                .build();
+        dados.setObra(obra);
+        dados.setAtualizadoEm(LocalDateTime.now());
 
-        return midiaRepository.save(midia);
+        return midiaRepository.save(dados);
+    }
+
+    @Transactional
+    public MidiaStreamingResponse atualizar(Long id, MidiaStreamingRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Dados da midia sao obrigatorios");
+        }
+
+        MidiaStreaming midia = buscarEntidadePorId(id);
+        midiaMapper.updateEntityFromRequest(request, midia);
+        midia.setAtualizadoEm(LocalDateTime.now());
+
+        MidiaStreaming salva = midiaRepository.save(midia);
+        return midiaMapper.toResponse(salva);
     }
 
     @Transactional
     public MidiaStreaming atualizar(Long id, MidiaStreaming dados) {
         validar(dados);
 
-        MidiaStreaming midia = buscarPorId(id);
-
+        MidiaStreaming midia = buscarEntidadePorId(id);
         midia.setTipoMidia(dados.getTipoMidia());
         midia.setEduplayEmbedUrl(dados.getEduplayEmbedUrl());
         midia.setCdnStreamUrl(dados.getCdnStreamUrl());
@@ -63,24 +85,33 @@ public class MidiaStreamingService {
     }
 
     @Transactional(readOnly = true)
-    public MidiaStreaming buscarPorId(Long id) {
+    public MidiaStreamingResponse buscarPorId(Long id) {
+        return midiaMapper.toResponse(buscarEntidadePorId(id));
+    }
+
+    @Transactional(readOnly = true)
+    public MidiaStreaming buscarEntidadePorId(Long id) {
         return midiaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Midia nao encontrada: " + id));
     }
 
     @Transactional(readOnly = true)
-    public List<MidiaStreaming> listarPorObra(Long obraId) {
-        return midiaRepository.findByObraId(obraId);
+    public List<MidiaStreamingResponse> listarPorObra(Long obraId) {
+        return midiaRepository.findByObraId(obraId).stream()
+                .map(midiaMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<MidiaStreaming> listarPorObraETipo(Long obraId, TipoMidia tipoMidia) {
-        return midiaRepository.findByObraIdAndTipoMidia(obraId, tipoMidia);
+    public List<MidiaStreamingResponse> listarPorObraETipo(Long obraId, TipoMidia tipoMidia) {
+        return midiaRepository.findByObraIdAndTipoMidia(obraId, tipoMidia).stream()
+                .map(midiaMapper::toResponse)
+                .toList();
     }
 
     @Transactional
     public void excluir(Long id) {
-        MidiaStreaming midia = buscarPorId(id);
+        MidiaStreaming midia = buscarEntidadePorId(id);
         midiaRepository.delete(midia);
     }
 
@@ -94,7 +125,6 @@ public class MidiaStreamingService {
         if (dados.getDuracaoSegundos() != null && dados.getDuracaoSegundos() <= 0) {
             throw new IllegalArgumentException("Duracao da midia deve ser maior que zero");
         }
-        // EMBED usa o iframe da RNP; NATIVE usa a URL assinada da CDN
         if (dados.getPlayerType() == TipoPlayer.EMBED && isVazio(dados.getEduplayEmbedUrl())) {
             throw new IllegalArgumentException("Player EMBED exige a URL de embed do Eduplay");
         }

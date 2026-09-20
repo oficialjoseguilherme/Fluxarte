@@ -70,7 +70,7 @@ final class ServiceFixtures {
                 .nome(nome)
                 .descricao("Evento de teste")
                 .dataInicio(LocalDate.now().minusDays(1))
-                .dataFim(LocalDate.now().plusDays(1))
+                .dataFim(LocalDate.now().plusDays(5))
                 .bannerUrl("https://cdn.test/evento.jpg")
                 .build();
     }

@@ -30,7 +30,7 @@ public class HistoricoVisualizacaoService {
         }
 
         Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
-        MidiaStreaming midia = midiaService.buscarPorId(midiaId);
+        MidiaStreaming midia = midiaService.buscarEntidadePorId(midiaId);
 
         HistoricoVisualizacao historico = HistoricoVisualizacao.builder()
                 .usuario(usuario)

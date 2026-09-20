@@ -7,6 +7,7 @@ import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.enums.NomeGenero;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,19 @@ public interface ObraAudiovisualMapper {
     @Mapping(target = "historicos", ignore = true)
     @Mapping(target = "recomendacoes", ignore = true)
     ObraAudiovisual toEntity(ObraAudiovisualRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "criadoEm", ignore = true)
+    @Mapping(target = "atualizadoEm", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "disponivel", ignore = true)
+    @Mapping(target = "generos", ignore = true)
+    @Mapping(target = "midias", ignore = true)
+    @Mapping(target = "eventoObras", ignore = true)
+    @Mapping(target = "progressos", ignore = true)
+    @Mapping(target = "historicos", ignore = true)
+    @Mapping(target = "recomendacoes", ignore = true)
+    void updateEntityFromRequest(ObraAudiovisualRequest request, @MappingTarget ObraAudiovisual obra);
 
     @Mapping(target = "generos", source = "generos", qualifiedByName = "mapGeneros")
     @Mapping(target = "exibivel", source = "obra", qualifiedByName = "mapExibivel")

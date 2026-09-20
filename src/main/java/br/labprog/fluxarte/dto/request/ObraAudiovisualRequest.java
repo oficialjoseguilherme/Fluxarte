@@ -56,7 +56,6 @@ public record ObraAudiovisualRequest(
             return true;
         return anoProducao <= Year.now().getValue();
     }
-
     @AssertTrue(message = "A data final de exibição não pode ser anterior à data de início")
     public boolean isJanelaExibicaoValida() {
         if (dataInicioExibicao != null && dataFimExibicao != null) {

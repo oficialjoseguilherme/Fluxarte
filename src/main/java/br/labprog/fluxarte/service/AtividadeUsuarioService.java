@@ -39,7 +39,7 @@ public class AtividadeUsuarioService {
                 throw new IllegalArgumentException("Atividade " + tipo + " exige a obra referenciada");
             }
             // obraIdReferenciada e um Long simples (sem FK), entao a existencia e checada aqui
-            obraService.buscarPorId(obraIdReferenciada);
+            obraService.buscarEntidadePorId(obraIdReferenciada);
         }
 
         AtividadeUsuario atividade = AtividadeUsuario.builder()

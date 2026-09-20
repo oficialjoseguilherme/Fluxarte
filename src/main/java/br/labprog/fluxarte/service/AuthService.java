@@ -10,6 +10,7 @@ import br.labprog.fluxarte.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ public class AuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UsuarioRepository usuarioRepository;
-    private final UsuarioService usuarioService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${fluxarte.security.refresh-token.validade-dias:30}")
     private int validadeDias;
@@ -70,11 +71,13 @@ public class AuthService {
 
     @Transactional
     public RefreshToken login(String email, String senha) {
-        if (email == null || senha == null || !usuarioService.autenticar(email, senha)) {
+        if (email == null || senha == null) {
             throw new BadCredentialsException("Credenciais invalidas");
         }
 
         Usuario usuario = usuarioRepository.findByEmail(email.trim().toLowerCase())
+                .filter(u -> Boolean.TRUE.equals(u.getAtivo()))
+                .filter(u -> passwordEncoder.matches(senha, u.getSenhaHash()))
                 .orElseThrow(() -> new BadCredentialsException("Credenciais invalidas"));
 
         return emitirToken(usuario);

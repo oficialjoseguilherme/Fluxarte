@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -61,7 +60,7 @@ public class RecomendacaoService {
         porSimilarDiretor(usuario, assistidas.values(), candidatas, melhores, agora);
 
         List<Recomendacao> resultado = melhores.values().stream()
-                .sorted(Comparator.comparing(Recomendacao::getScore).reversed())
+                .sorted((a, b) -> Float.compare(b.getScore(), a.getScore()))
                 .limit(MAX_RECOMENDACOES)
                 .toList();
 
@@ -98,7 +97,7 @@ public class RecomendacaoService {
         int total = 0;
         for (ObraAudiovisual obra : assistidas) {
             for (GeneroObra genero : obra.getGeneros()) {
-                frequencia.merge(genero, 1, Integer::sum);
+                frequencia.put(genero, frequencia.getOrDefault(genero, 0) + 1);
                 total++;
             }
         }
