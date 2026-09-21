@@ -1,5 +1,8 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.HistoricoVisualizacaoRequest;
+import br.labprog.fluxarte.dto.response.HistoricoVisualizacaoResponse;
+import br.labprog.fluxarte.mapper.HistoricoVisualizacaoMapper;
 import br.labprog.fluxarte.model.HistoricoVisualizacao;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.Usuario;
@@ -19,9 +22,25 @@ public class HistoricoVisualizacaoService {
     private final HistoricoVisualizacaoRepository historicoRepository;
     private final UsuarioService usuarioService;
     private final MidiaStreamingService midiaService;
+    private final HistoricoVisualizacaoMapper historicoMapper;
 
-    // RF17: cada sessao de visualizacao gera uma linha nova (o historico nao e sobrescrito).
-    // A obra vem da propria midia, para nao haver combinacao inconsistente obra/midia.
+    @Transactional
+    public HistoricoVisualizacaoResponse registrar(UUID usuarioId, HistoricoVisualizacaoRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Dados de historico sao obrigatorios");
+        }
+        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
+        MidiaStreaming midia = midiaService.buscarEntidadePorId(request.midiaId());
+
+        HistoricoVisualizacao historico = historicoMapper.toEntity(request);
+        historico.setUsuario(usuario);
+        historico.setObra(midia.getObra());
+        historico.setMidia(midia);
+        historico.setDataVisualizacao(LocalDateTime.now());
+
+        return historicoMapper.toResponse(historicoRepository.save(historico));
+    }
+
     @Transactional
     public HistoricoVisualizacao registrar(UUID usuarioId, Long midiaId,
                                            Integer tempoAssistidoSegundos, Boolean concluido) {
@@ -32,21 +51,26 @@ public class HistoricoVisualizacaoService {
         Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
         MidiaStreaming midia = midiaService.buscarEntidadePorId(midiaId);
 
-        HistoricoVisualizacao historico = HistoricoVisualizacao.builder()
-                .usuario(usuario)
-                .obra(midia.getObra())
-                .midia(midia)
-                .dataVisualizacao(LocalDateTime.now())
-                .tempoAssistidoSegundos(tempoAssistidoSegundos)
-                .concluido(concluido != null && concluido)
-                .build();
+        HistoricoVisualizacaoRequest request = new HistoricoVisualizacaoRequest(
+                midiaId, tempoAssistidoSegundos, concluido);
+        HistoricoVisualizacao historico = historicoMapper.toEntity(request);
+        historico.setUsuario(usuario);
+        historico.setObra(midia.getObra());
+        historico.setMidia(midia);
+        historico.setDataVisualizacao(LocalDateTime.now());
 
         return historicoRepository.save(historico);
     }
 
-    // mais recente primeiro
     @Transactional(readOnly = true)
     public List<HistoricoVisualizacao> listarPorUsuario(UUID usuarioId) {
         return historicoRepository.findByUsuarioIdOrderByDataVisualizacaoDesc(usuarioId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<HistoricoVisualizacaoResponse> listarPorUsuarioResponse(UUID usuarioId) {
+        return historicoRepository.findByUsuarioIdOrderByDataVisualizacaoDesc(usuarioId).stream()
+                .map(historicoMapper::toResponse)
+                .toList();
     }
 }

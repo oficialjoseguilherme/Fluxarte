@@ -1,5 +1,7 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.AtividadeUsuarioRequest;
+import br.labprog.fluxarte.dto.response.AtividadeUsuarioResponse;
 import br.labprog.fluxarte.model.AtividadeUsuario;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.Usuario;
@@ -8,6 +10,7 @@ import br.labprog.fluxarte.repository.AtividadeUsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,6 +34,33 @@ class AtividadeUsuarioServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    void deveRegistrarEListarViaDtoComSucesso() {
+        Usuario usuario = salvarUsuario("atividade-dto@teste.com");
+        ObraAudiovisual obra = salvarObra("Obra DTO Atividade");
+
+        AtividadeUsuarioRequest requestBusca = new AtividadeUsuarioRequest(
+                TipoAtividade.BUSCA, "  documentario  ", null, "{\"origem\":\"busca\"}");
+        AtividadeUsuarioResponse responseBusca = service.registrar(usuario.getId(), requestBusca);
+
+        assertNotNull(responseBusca.id());
+        assertEquals(TipoAtividade.BUSCA, responseBusca.tipoAtividade());
+        assertEquals("documentario", responseBusca.termoBusca());
+        assertNull(responseBusca.obraIdReferenciada());
+
+        AtividadeUsuarioRequest requestObra = new AtividadeUsuarioRequest(
+                TipoAtividade.CLIQUE_OBRA, null, obra.getId(), null);
+        AtividadeUsuarioResponse responseObra = service.registrar(usuario.getId(), requestObra);
+
+        assertNotNull(responseObra.id());
+        assertEquals(TipoAtividade.CLIQUE_OBRA, responseObra.tipoAtividade());
+        assertEquals(obra.getId(), responseObra.obraIdReferenciada());
+
+        List<AtividadeUsuarioResponse> lista = service.listarPorUsuarioResponse(usuario.getId());
+        assertEquals(2, lista.size());
+        assertEquals(1, service.listarPorUsuarioETipoResponse(usuario.getId(), TipoAtividade.BUSCA).size());
+    }
+
+    @Test
     void deveRegistrarAtividadeReferenciadaEValidarAObra() {
         Usuario usuario = salvarUsuario("atividade-obra@teste.com");
         ObraAudiovisual obra = salvarObra("Atividade obra");
@@ -48,9 +78,11 @@ class AtividadeUsuarioServiceTest extends AbstractServiceTest {
     @Test
     void deveValidarTipoETermosObrigatorios() {
         Usuario usuario = salvarUsuario("atividade-invalida@teste.com");
+        assertThrows(IllegalArgumentException.class,
+                () -> service.registrar(usuario.getId(), (AtividadeUsuarioRequest) null));
         assertEquals("Tipo da atividade e obrigatorio",
                 assertThrows(IllegalArgumentException.class,
-                        () -> service.registrar(usuario.getId(), null, null, null, null)).getMessage());
+                        () -> service.registrar(usuario.getId(), (TipoAtividade) null, null, null, null)).getMessage());
         assertEquals("Atividade de busca exige o termo pesquisado",
                 assertThrows(IllegalArgumentException.class,
                         () -> service.registrar(usuario.getId(), TipoAtividade.BUSCA,

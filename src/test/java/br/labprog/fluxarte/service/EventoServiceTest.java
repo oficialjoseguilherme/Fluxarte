@@ -1,5 +1,7 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.EventoRequest;
+import br.labprog.fluxarte.dto.response.EventoResponse;
 import br.labprog.fluxarte.model.Evento;
 import br.labprog.fluxarte.repository.EventoRepository;
 import org.junit.jupiter.api.Test;
@@ -32,8 +34,43 @@ class EventoServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    void deveCadastrarEAtualizarViaDtoComSucesso() {
+        EventoRequest request = new EventoRequest(
+                "Mostra Internacional",
+                "Mostra de cinema independente",
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(10),
+                "https://cdn.test/mostra.jpg"
+        );
+
+        EventoResponse criado = service.cadastrar(request);
+
+        assertNotNull(criado.id());
+        assertEquals("Mostra Internacional", criado.nome());
+        assertTrue(criado.emAndamento());
+
+        EventoRequest atualizacao = new EventoRequest(
+                "Mostra Internacional 2026",
+                "Descricao atualizada",
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(12),
+                "https://cdn.test/mostra-nova.jpg"
+        );
+
+        EventoResponse atualizado = service.atualizar(criado.id(), atualizacao);
+
+        assertEquals("Mostra Internacional 2026", atualizado.nome());
+        assertEquals("Descricao atualizada", atualizado.descricao());
+        assertEquals(1, service.listarTodosResponse().size());
+        assertEquals(1, service.buscarPorNomeResponse("Internacional").size());
+        assertEquals(1, service.listarEmAndamentoResponse().size());
+        assertEquals(criado.id(), service.buscarPorIdResponse(criado.id()).id());
+    }
+
+    @Test
     void deveValidarNomeEDatas() {
-        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(null));
+        assertThrows(IllegalArgumentException.class, () -> service.cadastrar((Evento) null));
+        assertThrows(IllegalArgumentException.class, () -> service.cadastrar((EventoRequest) null));
         Evento semNome = ServiceFixtures.evento(" ");
         assertEquals("Nome do evento e obrigatorio",
                 assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semNome)).getMessage());

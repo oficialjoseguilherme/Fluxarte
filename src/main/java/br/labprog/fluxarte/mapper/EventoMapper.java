@@ -5,6 +5,7 @@ import br.labprog.fluxarte.dto.response.EventoResponse;
 import br.labprog.fluxarte.model.Evento;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 import java.time.LocalDate;
@@ -15,6 +16,10 @@ public interface EventoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "eventoObras", ignore = true)
     Evento toEntity(EventoRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "eventoObras", ignore = true)
+    void updateEntityFromRequest(EventoRequest request, @MappingTarget Evento evento);
 
     @Mapping(target = "emAndamento", source = "evento", qualifiedByName = "mapEmAndamento")
     EventoResponse toResponse(Evento evento);

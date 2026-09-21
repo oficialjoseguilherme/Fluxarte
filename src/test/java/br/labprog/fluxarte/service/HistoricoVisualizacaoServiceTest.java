@@ -1,5 +1,7 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.HistoricoVisualizacaoRequest;
+import br.labprog.fluxarte.dto.response.HistoricoVisualizacaoResponse;
 import br.labprog.fluxarte.model.HistoricoVisualizacao;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
@@ -8,6 +10,8 @@ import br.labprog.fluxarte.model.enums.TipoMidia;
 import br.labprog.fluxarte.repository.HistoricoVisualizacaoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,6 +36,28 @@ class HistoricoVisualizacaoServiceTest extends AbstractServiceTest {
         assertFalse(primeiro.getConcluido());
         assertTrue(segundo.getConcluido());
         assertNotNull(segundo.getDataVisualizacao());
+    }
+
+    @Test
+    void deveRegistrarEListarViaDtoComSucesso() {
+        Usuario usuario = salvarUsuario("historico-dto@teste.com");
+        ObraAudiovisual obra = salvarObra("Histórico DTO");
+        MidiaStreaming midia = salvarMidia(obra, TipoMidia.PRINCIPAL);
+
+        HistoricoVisualizacaoRequest request = new HistoricoVisualizacaoRequest(midia.getId(), 450, true);
+        HistoricoVisualizacaoResponse response = service.registrar(usuario.getId(), request);
+
+        assertNotNull(response.id());
+        assertEquals(obra.getId(), response.obraId());
+        assertEquals("Histórico DTO", response.tituloObra());
+        assertEquals(midia.getId(), response.midiaId());
+        assertEquals(450, response.tempoAssistidoSegundos());
+        assertTrue(response.concluido());
+        assertNotNull(response.dataVisualizacao());
+
+        List<HistoricoVisualizacaoResponse> lista = service.listarPorUsuarioResponse(usuario.getId());
+        assertEquals(1, lista.size());
+        assertEquals(response.id(), lista.get(0).id());
     }
 
     @Test

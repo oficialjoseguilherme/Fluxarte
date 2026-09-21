@@ -1,5 +1,8 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.EventoRequest;
+import br.labprog.fluxarte.dto.response.EventoResponse;
+import br.labprog.fluxarte.mapper.EventoMapper;
 import br.labprog.fluxarte.model.Evento;
 import br.labprog.fluxarte.repository.EventoRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,34 +18,53 @@ import java.util.NoSuchElementException;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
+    private final EventoMapper eventoMapper;
+
+    @Transactional
+    public EventoResponse cadastrar(EventoRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Dados do evento sao obrigatorios");
+        }
+        Evento evento = eventoMapper.toEntity(request);
+        return eventoMapper.toResponse(eventoRepository.save(evento));
+    }
+
+    @Transactional
+    public EventoResponse atualizar(Long id, EventoRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Dados do evento sao obrigatorios");
+        }
+        Evento evento = buscarPorId(id);
+        eventoMapper.updateEntityFromRequest(request, evento);
+        return eventoMapper.toResponse(eventoRepository.save(evento));
+    }
 
     @Transactional
     public Evento cadastrar(Evento dados) {
         validar(dados);
-
-        Evento evento = Evento.builder()
-                .nome(dados.getNome().trim())
-                .descricao(dados.getDescricao())
-                .dataInicio(dados.getDataInicio())
-                .dataFim(dados.getDataFim())
-                .bannerUrl(dados.getBannerUrl())
-                .build();
-
+        EventoRequest request = new EventoRequest(
+                dados.getNome(),
+                dados.getDescricao(),
+                dados.getDataInicio(),
+                dados.getDataFim(),
+                dados.getBannerUrl()
+        );
+        Evento evento = eventoMapper.toEntity(request);
         return eventoRepository.save(evento);
     }
 
     @Transactional
     public Evento atualizar(Long id, Evento dados) {
         validar(dados);
-
         Evento evento = buscarPorId(id);
-
-        evento.setNome(dados.getNome().trim());
-        evento.setDescricao(dados.getDescricao());
-        evento.setDataInicio(dados.getDataInicio());
-        evento.setDataFim(dados.getDataFim());
-        evento.setBannerUrl(dados.getBannerUrl());
-
+        EventoRequest request = new EventoRequest(
+                dados.getNome(),
+                dados.getDescricao(),
+                dados.getDataInicio(),
+                dados.getDataFim(),
+                dados.getBannerUrl()
+        );
+        eventoMapper.updateEntityFromRequest(request, evento);
         return eventoRepository.save(evento);
     }
 
@@ -53,8 +75,20 @@ public class EventoService {
     }
 
     @Transactional(readOnly = true)
+    public EventoResponse buscarPorIdResponse(Long id) {
+        return eventoMapper.toResponse(buscarPorId(id));
+    }
+
+    @Transactional(readOnly = true)
     public List<Evento> listarTodos() {
         return eventoRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<EventoResponse> listarTodosResponse() {
+        return eventoRepository.findAll().stream()
+                .map(eventoMapper::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -62,13 +96,25 @@ public class EventoService {
         return eventoRepository.findByNomeContainingIgnoreCase(nome);
     }
 
-    // RF19: eventos e festivais acontecendo hoje
+    @Transactional(readOnly = true)
+    public List<EventoResponse> buscarPorNomeResponse(String nome) {
+        return eventoRepository.findByNomeContainingIgnoreCase(nome).stream()
+                .map(eventoMapper::toResponse)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public List<Evento> listarEmAndamento() {
         return eventoRepository.findEmAndamento(LocalDate.now());
     }
 
-    // a programacao (EventoObra) do evento e removida junto, por causa do cascade
+    @Transactional(readOnly = true)
+    public List<EventoResponse> listarEmAndamentoResponse() {
+        return eventoRepository.findEmAndamento(LocalDate.now()).stream()
+                .map(eventoMapper::toResponse)
+                .toList();
+    }
+
     @Transactional
     public void excluir(Long id) {
         Evento evento = buscarPorId(id);
