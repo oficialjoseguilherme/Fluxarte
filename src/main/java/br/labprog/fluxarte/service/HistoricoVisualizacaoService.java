@@ -41,36 +41,15 @@ public class HistoricoVisualizacaoService {
         return historicoMapper.toResponse(historicoRepository.save(historico));
     }
 
-    @Transactional
-    public HistoricoVisualizacao registrar(UUID usuarioId, Long midiaId,
-                                           Integer tempoAssistidoSegundos, Boolean concluido) {
-        if (tempoAssistidoSegundos != null && tempoAssistidoSegundos < 0) {
-            throw new IllegalArgumentException("Tempo assistido nao pode ser negativo");
-        }
-
-        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
-        MidiaStreaming midia = midiaService.buscarEntidadePorId(midiaId);
-
-        HistoricoVisualizacaoRequest request = new HistoricoVisualizacaoRequest(
-                midiaId, tempoAssistidoSegundos, concluido);
-        HistoricoVisualizacao historico = historicoMapper.toEntity(request);
-        historico.setUsuario(usuario);
-        historico.setObra(midia.getObra());
-        historico.setMidia(midia);
-        historico.setDataVisualizacao(LocalDateTime.now());
-
-        return historicoRepository.save(historico);
-    }
-
     @Transactional(readOnly = true)
-    public List<HistoricoVisualizacao> listarPorUsuario(UUID usuarioId) {
-        return historicoRepository.findByUsuarioIdOrderByDataVisualizacaoDesc(usuarioId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<HistoricoVisualizacaoResponse> listarPorUsuarioResponse(UUID usuarioId) {
+    public List<HistoricoVisualizacaoResponse> listarPorUsuario(UUID usuarioId) {
         return historicoRepository.findByUsuarioIdOrderByDataVisualizacaoDesc(usuarioId).stream()
                 .map(historicoMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<HistoricoVisualizacao> listarEntidadesPorUsuario(UUID usuarioId) {
+        return historicoRepository.findByUsuarioIdOrderByDataVisualizacaoDesc(usuarioId);
     }
 }

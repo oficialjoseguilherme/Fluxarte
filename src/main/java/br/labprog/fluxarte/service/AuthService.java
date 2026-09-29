@@ -40,7 +40,7 @@ public class AuthService {
         if (request == null || request.email() == null || request.senha() == null) {
             throw new BadCredentialsException("Credenciais invalidas");
         }
-        RefreshToken token = login(request.email(), request.senha());
+        RefreshToken token = autenticar(request.email(), request.senha());
         Usuario usuario = token.getUsuario();
         return new LoginResponse(
                 token.getToken(),
@@ -57,7 +57,7 @@ public class AuthService {
         if (request == null || request.refreshToken() == null || request.refreshToken().isBlank()) {
             throw new BadCredentialsException("Refresh token invalido");
         }
-        RefreshToken novo = renovar(request.refreshToken());
+        RefreshToken novo = rotacionar(request.refreshToken());
         Usuario usuario = novo.getUsuario();
         return new LoginResponse(
                 novo.getToken(),
@@ -70,7 +70,30 @@ public class AuthService {
     }
 
     @Transactional
-    public RefreshToken login(String email, String senha) {
+    public void logout(RefreshTokenRequest request) {
+        if (request == null || request.refreshToken() == null || request.refreshToken().isBlank()) {
+            return;
+        }
+        revogarToken(request.refreshToken());
+    }
+
+    @Transactional
+    public void logout(String tokenValor) {
+        revogarToken(tokenValor);
+    }
+
+    @Transactional
+    public void logoutTodasSessoes(UUID usuarioId) {
+        if (usuarioId == null) {
+            return;
+        }
+        refreshTokenRepository.findByUsuarioIdAndRevogadoFalse(usuarioId).forEach(token -> {
+            token.setRevogado(true);
+            refreshTokenRepository.save(token);
+        });
+    }
+
+    private RefreshToken autenticar(String email, String senha) {
         if (email == null || senha == null) {
             throw new BadCredentialsException("Credenciais invalidas");
         }
@@ -83,8 +106,7 @@ public class AuthService {
         return emitirToken(usuario);
     }
 
-    @Transactional
-    public RefreshToken renovar(String tokenValor) {
+    private RefreshToken rotacionar(String tokenValor) {
         if (tokenValor == null || tokenValor.isBlank()) {
             throw new BadCredentialsException("Refresh token invalido");
         }
@@ -113,23 +135,11 @@ public class AuthService {
         return emitirToken(atual.getUsuario());
     }
 
-    @Transactional
-    public void logout(String tokenValor) {
+    private void revogarToken(String tokenValor) {
         if (tokenValor == null || tokenValor.isBlank()) {
             return;
         }
         refreshTokenRepository.findByTokenAndRevogadoFalse(tokenValor).ifPresent(token -> {
-            token.setRevogado(true);
-            refreshTokenRepository.save(token);
-        });
-    }
-
-    @Transactional
-    public void logoutTodasSessoes(UUID usuarioId) {
-        if (usuarioId == null) {
-            return;
-        }
-        refreshTokenRepository.findByUsuarioIdAndRevogadoFalse(usuarioId).forEach(token -> {
             token.setRevogado(true);
             refreshTokenRepository.save(token);
         });

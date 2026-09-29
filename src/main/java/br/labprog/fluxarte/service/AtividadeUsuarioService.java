@@ -47,57 +47,15 @@ public class AtividadeUsuarioService {
         return atividadeMapper.toResponse(atividadeRepository.save(atividade));
     }
 
-    @Transactional
-    public AtividadeUsuario registrar(UUID usuarioId, TipoAtividade tipo, String termoBusca,
-                                      Long obraIdReferenciada, String metadadosJson) {
-        if (tipo == null) {
-            throw new IllegalArgumentException("Tipo da atividade e obrigatorio");
-        }
-
-        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
-
-        if (tipo == TipoAtividade.BUSCA) {
-            if (termoBusca == null || termoBusca.isBlank()) {
-                throw new IllegalArgumentException("Atividade de busca exige o termo pesquisado");
-            }
-        } else {
-            if (obraIdReferenciada == null) {
-                throw new IllegalArgumentException("Atividade " + tipo + " exige a obra referenciada");
-            }
-            obraService.buscarEntidadePorId(obraIdReferenciada);
-        }
-
-        AtividadeUsuarioRequest request = new AtividadeUsuarioRequest(
-                tipo,
-                tipo == TipoAtividade.BUSCA ? termoBusca.trim() : null,
-                tipo == TipoAtividade.BUSCA ? null : obraIdReferenciada,
-                metadadosJson
-        );
-        AtividadeUsuario atividade = atividadeMapper.toEntity(request);
-        atividade.setUsuario(usuario);
-
-        return atividadeRepository.save(atividade);
-    }
-
     @Transactional(readOnly = true)
-    public List<AtividadeUsuario> listarPorUsuario(UUID usuarioId) {
-        return atividadeRepository.findByUsuarioIdOrderByRegistradoEmDesc(usuarioId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<AtividadeUsuarioResponse> listarPorUsuarioResponse(UUID usuarioId) {
+    public List<AtividadeUsuarioResponse> listarPorUsuario(UUID usuarioId) {
         return atividadeRepository.findByUsuarioIdOrderByRegistradoEmDesc(usuarioId).stream()
                 .map(atividadeMapper::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<AtividadeUsuario> listarPorUsuarioETipo(UUID usuarioId, TipoAtividade tipo) {
-        return atividadeRepository.findByUsuarioIdAndTipoAtividadeOrderByRegistradoEmDesc(usuarioId, tipo);
-    }
-
-    @Transactional(readOnly = true)
-    public List<AtividadeUsuarioResponse> listarPorUsuarioETipoResponse(UUID usuarioId, TipoAtividade tipo) {
+    public List<AtividadeUsuarioResponse> listarPorUsuarioETipo(UUID usuarioId, TipoAtividade tipo) {
         return atividadeRepository.findByUsuarioIdAndTipoAtividadeOrderByRegistradoEmDesc(usuarioId, tipo).stream()
                 .map(atividadeMapper::toResponse)
                 .toList();

@@ -15,13 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +28,11 @@ public class RecomendacaoService {
     private final HistoricoVisualizacaoService historicoService;
     private final ObraAudiovisualService obraService;
 
-    // Gera de novo as recomendacoes do usuario (RF17): as antigas sao substituidas.
-    // Uma obra so aparece uma vez, com o algoritmo que deu o maior score para ela.
     @Transactional
     public List<Recomendacao> gerarParaUsuario(UUID usuarioId) {
         Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
-        List<HistoricoVisualizacao> historico = historicoService.listarPorUsuario(usuarioId);
+        List<HistoricoVisualizacao> historico = historicoService.listarEntidadesPorUsuario(usuarioId);
 
-        // obras ja assistidas, por id (sem repeticao)
         Map<Long, ObraAudiovisual> assistidas = new LinkedHashMap<>();
         for (HistoricoVisualizacao h : historico) {
             assistidas.putIfAbsent(h.getObra().getId(), h.getObra());
@@ -74,7 +65,6 @@ public class RecomendacaoService {
         return recomendacaoRepository.findByUsuarioIdOrderByScoreDesc(usuarioId);
     }
 
-    // PREFERENCIA_GENERO: fracao dos generos preferidos do usuario que a obra cobre
     private void porPreferenciaGenero(Usuario usuario, List<ObraAudiovisual> candidatas,
                                       Map<Long, Recomendacao> melhores, LocalDateTime agora) {
         Set<GeneroObra> preferidos = usuario.getGenerosPreferidos();
@@ -89,7 +79,6 @@ public class RecomendacaoService {
         }
     }
 
-    // HISTORICO: peso dos generos da obra dentro dos generos que o usuario ja assistiu
     private void porHistorico(Usuario usuario, Iterable<ObraAudiovisual> assistidas,
                               List<ObraAudiovisual> candidatas, Map<Long, Recomendacao> melhores,
                               LocalDateTime agora) {
@@ -114,7 +103,6 @@ public class RecomendacaoService {
         }
     }
 
-    // SIMILAR_DIRETOR: obra do mesmo diretor de algo que o usuario ja assistiu
     private void porSimilarDiretor(Usuario usuario, Iterable<ObraAudiovisual> assistidas,
                                    List<ObraAudiovisual> candidatas, Map<Long, Recomendacao> melhores,
                                    LocalDateTime agora) {
@@ -132,7 +120,6 @@ public class RecomendacaoService {
         }
     }
 
-    // guarda so a melhor recomendacao de cada obra; score zero nao e recomendacao
     private void registrar(Map<Long, Recomendacao> melhores, Usuario usuario, ObraAudiovisual obra,
                            AlgoritmoRecomendacao algoritmo, float score, LocalDateTime agora) {
         if (score <= 0) {
@@ -151,7 +138,6 @@ public class RecomendacaoService {
         }
     }
 
-    // respeita a preferencia de conteudo adulto e a idade minima da classificacao indicativa
     private boolean podeAssistir(Usuario usuario, ObraAudiovisual obra) {
         ClassificacaoIndicativa classificacao = obra.getClassificacaoIndicativa();
 

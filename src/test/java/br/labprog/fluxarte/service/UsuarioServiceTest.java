@@ -21,11 +21,12 @@ class UsuarioServiceTest extends AbstractServiceTest {
 
     @Test
     void deveCadastrarUsuarioComSenhaCodificadaEValoresPadrao() {
-        Usuario salvo = service.cadastrar("Ana", "ana@teste.com", "segredo",
-                LocalDate.of(2000, 5, 10));
+        UsuarioCadastroRequest request = new UsuarioCadastroRequest(
+                "Ana", "ana@teste.com", "segredo", LocalDate.of(2000, 5, 10), null, false);
+        UsuarioResponse salvo = service.cadastrar(request);
         flushAndClear();
 
-        Usuario recuperado = usuarioRepository.findById(salvo.getId()).orElseThrow();
+        Usuario recuperado = usuarioRepository.findById(salvo.id()).orElseThrow();
         assertEquals("Ana", recuperado.getNome());
         assertEquals("Ana", recuperado.getNomeExibicao());
         assertTrue(passwordEncoder.matches("segredo", recuperado.getSenhaHash()));
@@ -54,10 +55,14 @@ class UsuarioServiceTest extends AbstractServiceTest {
 
     @Test
     void deveRejeitarEmailDuplicado() {
-        service.cadastrar("Ana", "duplicado@teste.com", "senha", null);
+        UsuarioCadastroRequest request = new UsuarioCadastroRequest(
+                "Ana", "duplicado@teste.com", "senha", LocalDate.of(2000, 1, 1), null, false);
+        service.cadastrar(request);
 
+        UsuarioCadastroRequest duplicado = new UsuarioCadastroRequest(
+                "Outra", "duplicado@teste.com", "senha", LocalDate.of(2000, 1, 1), null, false);
         IllegalArgumentException erro = assertThrows(IllegalArgumentException.class,
-                () -> service.cadastrar("Outra", "duplicado@teste.com", "senha", null));
+                () -> service.cadastrar(duplicado));
         assertEquals("Ja existe um usuario cadastrado com esse email", erro.getMessage());
     }
 
@@ -74,33 +79,23 @@ class UsuarioServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void deveAutenticarSomenteSenhaCorretaEUsuarioAtivo() {
-        Usuario usuario = service.cadastrar("Login", "login@teste.com", "correta", null);
-
-        assertTrue(service.autenticar("login@teste.com", "correta"));
-        assertFalse(service.autenticar("login@teste.com", "errada"));
-        assertFalse(service.autenticar("inexistente@teste.com", "correta"));
-
-        usuario.setAtivo(false);
-        usuarioRepository.saveAndFlush(usuario);
-        assertFalse(service.autenticar("login@teste.com", "correta"));
-    }
-
-    @Test
     void deveGerarErroAoCadastrarSemNome() {
-        assertThrows(IllegalArgumentException.class,
-                () -> service.cadastrar(null, "sem-nome@teste.com", "senha", null));
+        UsuarioCadastroRequest semNome = new UsuarioCadastroRequest(
+                null, "sem-nome@teste.com", "senha", LocalDate.of(2000, 1, 1), null, false);
+        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semNome));
     }
 
     @Test
     void deveGerarErroAoCadastrarSemEmail() {
-        assertThrows(IllegalArgumentException.class,
-                () -> service.cadastrar("Sem email", null, "senha", null));
+        UsuarioCadastroRequest semEmail = new UsuarioCadastroRequest(
+                "Sem email", null, "senha", LocalDate.of(2000, 1, 1), null, false);
+        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semEmail));
     }
 
     @Test
     void deveGerarErroAoCadastrarSemSenha() {
-        assertThrows(IllegalArgumentException.class,
-                () -> service.cadastrar("Sem senha", "sem-senha@teste.com", null, null));
+        UsuarioCadastroRequest semSenha = new UsuarioCadastroRequest(
+                "Sem senha", "sem-senha@teste.com", null, LocalDate.of(2000, 1, 1), null, false);
+        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semSenha));
     }
 }

@@ -33,7 +33,7 @@ public class EventoObraService {
             throw new IllegalArgumentException("Essa obra ja faz parte da programacao do evento");
         }
 
-        Evento evento = eventoService.buscarPorId(eventoId);
+        Evento evento = eventoService.buscarEntidadePorId(eventoId);
         ObraAudiovisual obra = obraService.buscarEntidadePorId(request.obraId());
         validarPeriodoEvento(evento, request.dataEstreiaEventoInicio(), request.dataEstreiaEventoFim());
 
@@ -44,26 +44,6 @@ public class EventoObraService {
         return eventoObraMapper.toResponse(eventoObraRepository.save(eventoObra));
     }
 
-    @Transactional
-    public EventoObra adicionarObra(Long eventoId, Long obraId, EventoObra dados) {
-        validar(dados);
-
-        if (eventoObraRepository.existsByEventoIdAndObraId(eventoId, obraId)) {
-            throw new IllegalArgumentException("Essa obra ja faz parte da programacao do evento");
-        }
-
-        Evento evento = eventoService.buscarPorId(eventoId);
-        ObraAudiovisual obra = obraService.buscarEntidadePorId(obraId);
-        validarPeriodoEvento(evento, dados.getDataEstreiaEventoInicio(), dados.getDataEstreiaEventoFim());
-
-        dados.setEvento(evento);
-        dados.setObra(obra);
-        if (dados.getDestaque() == null) {
-            dados.setDestaque(false);
-        }
-
-        return eventoObraRepository.save(dados);
-    }
 
     @Transactional
     public EventoObraResponse atualizar(Long id, EventoObraRequest request) {
@@ -78,21 +58,6 @@ public class EventoObraService {
         return eventoObraMapper.toResponse(eventoObraRepository.save(eventoObra));
     }
 
-    @Transactional
-    public EventoObra atualizar(Long id, EventoObra dados) {
-        validar(dados);
-
-        EventoObra eventoObra = buscarEntidadePorId(id);
-        validarPeriodoEvento(eventoObra.getEvento(), dados.getDataEstreiaEventoInicio(), dados.getDataEstreiaEventoFim());
-
-        eventoObra.setCategoria(dados.getCategoria());
-        eventoObra.setDataEstreiaEventoInicio(dados.getDataEstreiaEventoInicio());
-        eventoObra.setDataEstreiaEventoFim(dados.getDataEstreiaEventoFim());
-        eventoObra.setPremiacao(dados.getPremiacao());
-        eventoObra.setDestaque(dados.getDestaque() != null ? dados.getDestaque() : false);
-
-        return eventoObraRepository.save(eventoObra);
-    }
 
     @Transactional(readOnly = true)
     public EventoObraResponse buscarPorId(Long id) {
@@ -138,19 +103,6 @@ public class EventoObraService {
         }
         if (evento.getDataFim() != null && fim != null && fim.toLocalDate().isAfter(evento.getDataFim())) {
             throw new IllegalArgumentException("Data de fim da estreia nao pode ser posterior ao fim do evento");
-        }
-    }
-
-    private void validar(EventoObra dados) {
-        if (dados == null) {
-            throw new IllegalArgumentException("Dados da obra do evento sao obrigatorios");
-        }
-        if (dados.getCategoria() == null) {
-            throw new IllegalArgumentException("Categoria da obra no evento e obrigatoria");
-        }
-        if (dados.getDataEstreiaEventoInicio() != null && dados.getDataEstreiaEventoFim() != null
-                && dados.getDataEstreiaEventoFim().isBefore(dados.getDataEstreiaEventoInicio())) {
-            throw new IllegalArgumentException("Data fim da estreia nao pode ser anterior a data de inicio");
         }
     }
 }

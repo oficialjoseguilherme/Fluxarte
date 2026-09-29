@@ -5,13 +5,11 @@ import br.labprog.fluxarte.dto.response.UsuarioResponse;
 import br.labprog.fluxarte.mapper.UsuarioMapper;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.UsuarioRepository;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -49,16 +47,6 @@ public class UsuarioService {
         return usuarioMapper.toResponse(salvo);
     }
 
-    @Transactional
-    public Usuario cadastrar(String nome, String email, String senha, LocalDate dataNascimento) {
-        LocalDate data = dataNascimento != null ? dataNascimento : LocalDate.of(2000, 1, 1);
-        UsuarioCadastroRequest request = new UsuarioCadastroRequest(
-                nome, email, senha, data, null, false);
-
-        UsuarioResponse response = cadastrar(request);
-        return buscarEntidadePorId(response.id());
-    }
-
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorId(UUID id) {
         return usuarioMapper.toResponse(buscarEntidadePorId(id));
@@ -68,16 +56,5 @@ public class UsuarioService {
     public Usuario buscarEntidadePorId(UUID id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Usuario nao encontrado: " + id));
-    }
-
-    @Transactional(readOnly = true)
-    public boolean autenticar(@NonNull String email, String senha) {
-        if (senha == null) {
-            return false;
-        }
-        return usuarioRepository.findByEmail(email.trim().toLowerCase())
-                .filter(usuario -> Boolean.TRUE.equals(usuario.getAtivo()))
-                .map(usuario -> passwordEncoder.matches(senha, usuario.getSenhaHash()))
-                .orElse(false);
     }
 }

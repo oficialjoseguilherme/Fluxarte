@@ -41,3 +41,5 @@ application-local.properties
 
 ### Docker ###
 # (nada aqui - Dockerfile e docker-compose.yml DEVEM ser commitados)
+*.class
+/bin
