@@ -2,7 +2,9 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.LoginRequest;
 import br.labprog.fluxarte.dto.request.RefreshTokenRequest;
+import br.labprog.fluxarte.dto.request.UsuarioCadastroRequest;
 import br.labprog.fluxarte.dto.response.LoginResponse;
+import br.labprog.fluxarte.dto.response.UsuarioResponse;
 import br.labprog.fluxarte.model.RefreshToken;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.RefreshTokenRepository;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,66 +25,49 @@ class AuthServiceTest extends AbstractServiceTest {
 
     @Test
     void deveFazerLoginEEmitirTokenSeguroPorTrintaDias() {
-        Usuario usuario = usuarioService.cadastrar("Auth", "auth@teste.com", "senha", null);
+        Usuario usuario = cadastrarUsuario("auth@teste.com", "senha");
         LocalDateTime antes = LocalDateTime.now().plusDays(30).minusSeconds(1);
 
-        RefreshToken token = service.login("auth@teste.com", "senha");
+        LoginResponse response = service.login(new LoginRequest("auth@teste.com", "senha"));
         LocalDateTime depois = LocalDateTime.now().plusDays(30).plusSeconds(1);
 
-        assertNotNull(token.getId());
-        assertEquals(usuario.getId(), token.getUsuario().getId());
-        assertFalse(token.getRevogado());
-        assertEquals(43, token.getToken().length());
-        assertFalse(token.getExpiraEm().isBefore(antes));
-        assertFalse(token.getExpiraEm().isAfter(depois));
-    }
-
-    @Test
-    void deveFazerLoginViaDto() {
-        Usuario usuario = usuarioService.cadastrar("AuthDto", "authdto@teste.com", "senha123", null);
-        LoginResponse response = service.login(new LoginRequest("authdto@teste.com", "senha123"));
-
         assertNotNull(response);
-        assertNotNull(response.refreshToken());
-        assertEquals("Bearer", response.tipo());
         assertEquals(usuario.getId(), response.usuarioId());
+        assertEquals("Bearer", response.tipo());
+        assertEquals("Auth", response.nome());
+        assertEquals("auth@teste.com", response.email());
+        assertEquals(43, response.refreshToken().length());
+        assertFalse(response.expiraEm().isBefore(antes));
+        assertFalse(response.expiraEm().isAfter(depois));
+
+        RefreshToken token = refreshTokenRepository.findByToken(response.refreshToken()).orElseThrow();
+        assertFalse(token.getRevogado());
     }
 
     @Test
     void deveOcultarMotivoDasCredenciaisInvalidas() {
-        usuarioService.cadastrar("Auth", "credencial@teste.com", "certa", null);
+        cadastrarUsuario("credencial@teste.com", "certa");
 
         BadCredentialsException email = assertThrows(BadCredentialsException.class,
-                () -> service.login("nao-existe@teste.com", "certa"));
+                () -> service.login(new LoginRequest("nao-existe@teste.com", "certa")));
         BadCredentialsException senha = assertThrows(BadCredentialsException.class,
-                () -> service.login("credencial@teste.com", "errada"));
+                () -> service.login(new LoginRequest("credencial@teste.com", "errada")));
         assertEquals("Credenciais invalidas", email.getMessage());
         assertEquals("Credenciais invalidas", senha.getMessage());
     }
 
     @Test
     void deveRotacionarRefreshToken() {
-        usuarioService.cadastrar("Auth", "rotacao@teste.com", "senha", null);
-        RefreshToken antigo = service.login("rotacao@teste.com", "senha");
+        cadastrarUsuario("rotacao@teste.com", "senha");
+        LoginResponse antigo = service.login(new LoginRequest("rotacao@teste.com", "senha"));
 
-        RefreshToken novo = service.renovar(antigo.getToken());
+        LoginResponse novo = service.renovar(new RefreshTokenRequest(antigo.refreshToken()));
         flushAndClear();
 
-        assertNotEquals(antigo.getToken(), novo.getToken());
-        assertTrue(refreshTokenRepository.findById(antigo.getId()).orElseThrow().getRevogado());
-        assertFalse(refreshTokenRepository.findById(novo.getId()).orElseThrow().getRevogado());
-    }
-
-    @Test
-    void deveRotacionarViaDto() {
-        usuarioService.cadastrar("AuthRotDto", "rotdto@teste.com", "senha123", null);
-        LoginResponse login = service.login(new LoginRequest("rotdto@teste.com", "senha123"));
-
-        LoginResponse novo = service.renovar(new RefreshTokenRequest(login.refreshToken()));
-        flushAndClear();
-
-        assertNotEquals(login.refreshToken(), novo.refreshToken());
-        assertEquals(login.usuarioId(), novo.usuarioId());
+        assertNotEquals(antigo.refreshToken(), novo.refreshToken());
+        assertEquals(antigo.usuarioId(), novo.usuarioId());
+        assertTrue(refreshTokenRepository.findByToken(antigo.refreshToken()).orElseThrow().getRevogado());
+        assertFalse(refreshTokenRepository.findByToken(novo.refreshToken()).orElseThrow().getRevogado());
     }
 
     @Test
@@ -91,7 +77,7 @@ class AuthServiceTest extends AbstractServiceTest {
                 LocalDateTime.now().minusMinutes(5)));
 
         BadCredentialsException erro = assertThrows(BadCredentialsException.class,
-                () -> service.renovar(expirado.getToken()));
+                () -> service.renovar(new RefreshTokenRequest(expirado.getToken())));
         assertEquals("Refresh token expirado", erro.getMessage());
 
         RefreshToken atualizado = refreshTokenRepository.findById(expirado.getId()).orElseThrow();
@@ -118,7 +104,7 @@ class AuthServiceTest extends AbstractServiceTest {
                         .build());
 
         BadCredentialsException erro = assertThrows(BadCredentialsException.class,
-                () -> service.renovar(revogado.getToken()));
+                () -> service.renovar(new RefreshTokenRequest(revogado.getToken())));
         assertEquals("Tentativa de reuso de sessao detectada", erro.getMessage());
 
         assertTrue(refreshTokenRepository.findById(sessaoAtiva.getId()).orElseThrow().getRevogado());
@@ -127,7 +113,7 @@ class AuthServiceTest extends AbstractServiceTest {
     @Test
     void deveRejeitarTokenInexistenteOuDeUsuarioInativo() {
         BadCredentialsException inexistente = assertThrows(BadCredentialsException.class,
-                () -> service.renovar("inexistente"));
+                () -> service.renovar(new RefreshTokenRequest("inexistente")));
         assertEquals("Refresh token invalido", inexistente.getMessage());
 
         Usuario usuario = salvarUsuario("token-inativo@teste.com");
@@ -136,32 +122,39 @@ class AuthServiceTest extends AbstractServiceTest {
         usuario.setAtivo(false);
         usuarioRepository.saveAndFlush(usuario);
         BadCredentialsException erroInativo = assertThrows(BadCredentialsException.class,
-                () -> service.renovar(inativo.getToken()));
+                () -> service.renovar(new RefreshTokenRequest(inativo.getToken())));
         assertEquals("Usuario inativo", erroInativo.getMessage());
     }
 
     @Test
     void deveFazerLogoutDeFormaIdempotente() {
-        usuarioService.cadastrar("Auth", "logout@teste.com", "senha", null);
-        RefreshToken token = service.login("logout@teste.com", "senha");
+        cadastrarUsuario("logout@teste.com", "senha");
+        LoginResponse login = service.login(new LoginRequest("logout@teste.com", "senha"));
 
-        service.logout(token.getToken());
-        service.logout(token.getToken());
-        service.logout("inexistente");
+        service.logout(new RefreshTokenRequest(login.refreshToken()));
+        service.logout(new RefreshTokenRequest(login.refreshToken()));
+        service.logout(new RefreshTokenRequest("inexistente"));
+        service.logout(login.refreshToken());
 
-        assertTrue(refreshTokenRepository.findById(token.getId()).orElseThrow().getRevogado());
+        assertTrue(refreshTokenRepository.findByToken(login.refreshToken()).orElseThrow().getRevogado());
     }
 
     @Test
     void deveEncerrarTodasAsSessoesDoUsuario() {
-        Usuario usuario = usuarioService.cadastrar("Auth", "todas@teste.com", "senha", null);
-        service.login("todas@teste.com", "senha");
-        service.login("todas@teste.com", "senha");
+        Usuario usuario = cadastrarUsuario("todas@teste.com", "senha");
+        service.login(new LoginRequest("todas@teste.com", "senha"));
+        service.login(new LoginRequest("todas@teste.com", "senha"));
 
         service.logoutTodasSessoes(usuario.getId());
         flushAndClear();
 
         assertTrue(refreshTokenRepository.findByUsuarioIdAndRevogadoFalse(usuario.getId()).isEmpty());
+    }
+
+    private Usuario cadastrarUsuario(String email, String senha) {
+        UsuarioResponse response = usuarioService.cadastrar(new UsuarioCadastroRequest(
+                "Auth", email, senha, LocalDate.of(2000, 1, 1), null, false));
+        return usuarioRepository.findById(response.id()).orElseThrow();
     }
 
     private RefreshToken token(Usuario usuario, String valor, LocalDateTime expiraEm) {

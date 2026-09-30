@@ -6,7 +6,6 @@ import br.labprog.fluxarte.mapper.MidiaStreamingMapper;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.enums.TipoMidia;
-import br.labprog.fluxarte.model.enums.TipoPlayer;
 import br.labprog.fluxarte.repository.MidiaStreamingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,18 +40,6 @@ public class MidiaStreamingService {
     }
 
     @Transactional
-    public MidiaStreaming cadastrar(Long obraId, MidiaStreaming dados) {
-        validar(dados);
-
-        ObraAudiovisual obra = obraService.buscarEntidadePorId(obraId);
-
-        dados.setObra(obra);
-        dados.setAtualizadoEm(LocalDateTime.now());
-
-        return midiaRepository.save(dados);
-    }
-
-    @Transactional
     public MidiaStreamingResponse atualizar(Long id, MidiaStreamingRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Dados da midia sao obrigatorios");
@@ -64,24 +51,6 @@ public class MidiaStreamingService {
 
         MidiaStreaming salva = midiaRepository.save(midia);
         return midiaMapper.toResponse(salva);
-    }
-
-    @Transactional
-    public MidiaStreaming atualizar(Long id, MidiaStreaming dados) {
-        validar(dados);
-
-        MidiaStreaming midia = buscarEntidadePorId(id);
-        midia.setTipoMidia(dados.getTipoMidia());
-        midia.setEduplayEmbedUrl(dados.getEduplayEmbedUrl());
-        midia.setCdnStreamUrl(dados.getCdnStreamUrl());
-        midia.setResolucao(dados.getResolucao());
-        midia.setFormato(dados.getFormato());
-        midia.setPlayerType(dados.getPlayerType());
-        midia.setDuracaoSegundos(dados.getDuracaoSegundos());
-        midia.setThumbsSpriteUrl(dados.getThumbsSpriteUrl());
-        midia.setAtualizadoEm(LocalDateTime.now());
-
-        return midiaRepository.save(midia);
     }
 
     @Transactional(readOnly = true)
@@ -113,27 +82,5 @@ public class MidiaStreamingService {
     public void excluir(Long id) {
         MidiaStreaming midia = buscarEntidadePorId(id);
         midiaRepository.delete(midia);
-    }
-
-    private void validar(MidiaStreaming dados) {
-        if (dados == null) {
-            throw new IllegalArgumentException("Dados da midia sao obrigatorios");
-        }
-        if (dados.getTipoMidia() == null) {
-            throw new IllegalArgumentException("Tipo da midia e obrigatorio");
-        }
-        if (dados.getDuracaoSegundos() != null && dados.getDuracaoSegundos() <= 0) {
-            throw new IllegalArgumentException("Duracao da midia deve ser maior que zero");
-        }
-        if (dados.getPlayerType() == TipoPlayer.EMBED && isVazio(dados.getEduplayEmbedUrl())) {
-            throw new IllegalArgumentException("Player EMBED exige a URL de embed do Eduplay");
-        }
-        if (dados.getPlayerType() == TipoPlayer.NATIVE && isVazio(dados.getCdnStreamUrl())) {
-            throw new IllegalArgumentException("Player NATIVE exige a URL de stream da CDN");
-        }
-    }
-
-    private boolean isVazio(String valor) {
-        return valor == null || valor.isBlank();
     }
 }

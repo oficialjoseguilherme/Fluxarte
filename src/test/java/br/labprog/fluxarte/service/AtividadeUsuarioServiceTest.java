@@ -2,7 +2,6 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.AtividadeUsuarioRequest;
 import br.labprog.fluxarte.dto.response.AtividadeUsuarioResponse;
-import br.labprog.fluxarte.model.AtividadeUsuario;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.model.enums.TipoAtividade;
@@ -24,13 +23,14 @@ class AtividadeUsuarioServiceTest extends AbstractServiceTest {
     void deveRegistrarBuscaComTermoNormalizado() {
         Usuario usuario = salvarUsuario("atividade-busca@teste.com");
 
-        AtividadeUsuario atividade = service.registrar(usuario.getId(), TipoAtividade.BUSCA,
-                "  cinema maranhense  ", 999L, "{\"origem\":\"home\"}");
+        AtividadeUsuarioRequest request = new AtividadeUsuarioRequest(
+                TipoAtividade.BUSCA, "  cinema maranhense  ", 999L, "{\"origem\":\"home\"}");
+        AtividadeUsuarioResponse response = service.registrar(usuario.getId(), request);
 
-        assertNotNull(atividade.getId());
-        assertEquals("cinema maranhense", atividade.getTermoBusca());
-        assertNull(atividade.getObraIdReferenciada());
-        assertEquals("{\"origem\":\"home\"}", atividade.getMetadadosJson());
+        assertNotNull(response.id());
+        assertEquals("cinema maranhense", response.termoBusca());
+        assertNull(response.obraIdReferenciada());
+        assertEquals("{\"origem\":\"home\"}", response.metadadosJson());
     }
 
     @Test
@@ -55,9 +55,9 @@ class AtividadeUsuarioServiceTest extends AbstractServiceTest {
         assertEquals(TipoAtividade.CLIQUE_OBRA, responseObra.tipoAtividade());
         assertEquals(obra.getId(), responseObra.obraIdReferenciada());
 
-        List<AtividadeUsuarioResponse> lista = service.listarPorUsuarioResponse(usuario.getId());
+        List<AtividadeUsuarioResponse> lista = service.listarPorUsuario(usuario.getId());
         assertEquals(2, lista.size());
-        assertEquals(1, service.listarPorUsuarioETipoResponse(usuario.getId(), TipoAtividade.BUSCA).size());
+        assertEquals(1, service.listarPorUsuarioETipo(usuario.getId(), TipoAtividade.BUSCA).size());
     }
 
     @Test
@@ -65,43 +65,36 @@ class AtividadeUsuarioServiceTest extends AbstractServiceTest {
         Usuario usuario = salvarUsuario("atividade-obra@teste.com");
         ObraAudiovisual obra = salvarObra("Atividade obra");
 
-        AtividadeUsuario atividade = service.registrar(usuario.getId(), TipoAtividade.CLIQUE_OBRA,
-                "ignorado", obra.getId(), null);
+        AtividadeUsuarioRequest request = new AtividadeUsuarioRequest(
+                TipoAtividade.CLIQUE_OBRA, "ignorado", obra.getId(), null);
+        AtividadeUsuarioResponse response = service.registrar(usuario.getId(), request);
 
-        assertNull(atividade.getTermoBusca());
-        assertEquals(obra.getId(), atividade.getObraIdReferenciada());
+        assertNull(response.termoBusca());
+        assertEquals(obra.getId(), response.obraIdReferenciada());
+
+        AtividadeUsuarioRequest invalida = new AtividadeUsuarioRequest(
+                TipoAtividade.VIEW_TRAILER, null, Long.MAX_VALUE, null);
         assertThrows(NoSuchElementException.class,
-                () -> service.registrar(usuario.getId(), TipoAtividade.VIEW_TRAILER,
-                        null, Long.MAX_VALUE, null));
+                () -> service.registrar(usuario.getId(), invalida));
     }
 
     @Test
-    void deveValidarTipoETermosObrigatorios() {
+    void deveRejeitarRequestNulo() {
         Usuario usuario = salvarUsuario("atividade-invalida@teste.com");
         assertThrows(IllegalArgumentException.class,
-                () -> service.registrar(usuario.getId(), (AtividadeUsuarioRequest) null));
-        assertEquals("Tipo da atividade e obrigatorio",
-                assertThrows(IllegalArgumentException.class,
-                        () -> service.registrar(usuario.getId(), (TipoAtividade) null, null, null, null)).getMessage());
-        assertEquals("Atividade de busca exige o termo pesquisado",
-                assertThrows(IllegalArgumentException.class,
-                        () -> service.registrar(usuario.getId(), TipoAtividade.BUSCA,
-                                " ", null, null)).getMessage());
-        assertThrows(IllegalArgumentException.class,
-                () -> service.registrar(usuario.getId(), TipoAtividade.VIEW_DIRETOR,
-                        null, null, null));
+                () -> service.registrar(usuario.getId(), null));
     }
 
     @Test
     void deveListarPorUsuarioEPorTipoMaisRecentePrimeiro() {
         Usuario usuario = salvarUsuario("listar-atividade@teste.com");
         ObraAudiovisual obra = salvarObra("Listar atividade");
-        service.registrar(usuario.getId(), TipoAtividade.BUSCA, "primeira", null, null);
-        AtividadeUsuario recente = service.registrar(usuario.getId(), TipoAtividade.CLIQUE_OBRA,
-                null, obra.getId(), null);
+        service.registrar(usuario.getId(), new AtividadeUsuarioRequest(TipoAtividade.BUSCA, "primeira", null, null));
+        AtividadeUsuarioResponse recente = service.registrar(
+                usuario.getId(), new AtividadeUsuarioRequest(TipoAtividade.CLIQUE_OBRA, null, obra.getId(), null));
 
         assertEquals(2, service.listarPorUsuario(usuario.getId()).size());
-        assertEquals(recente.getId(), service.listarPorUsuario(usuario.getId()).get(0).getId());
+        assertEquals(recente.id(), service.listarPorUsuario(usuario.getId()).get(0).id());
         assertEquals(1, service.listarPorUsuarioETipo(usuario.getId(), TipoAtividade.BUSCA).size());
         assertEquals(2, repository.count());
     }

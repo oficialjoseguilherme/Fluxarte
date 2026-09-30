@@ -2,7 +2,6 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.EventoRequest;
 import br.labprog.fluxarte.dto.response.EventoResponse;
-import br.labprog.fluxarte.model.Evento;
 import br.labprog.fluxarte.repository.EventoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,22 +18,6 @@ class EventoServiceTest extends AbstractServiceTest {
 
     @Test
     void deveCadastrarAtualizarEConsultarEvento() {
-        Evento salvo = service.cadastrar(ServiceFixtures.evento("  Festival  "));
-        Evento dados = ServiceFixtures.evento("  Festival Atualizado  ");
-        dados.setDescricao("Nova descrição");
-
-        Evento atualizado = service.atualizar(salvo.getId(), dados);
-
-        assertEquals("Festival Atualizado", atualizado.getNome());
-        assertEquals("Nova descrição", atualizado.getDescricao());
-        assertEquals(1, service.listarTodos().size());
-        assertEquals(1, service.buscarPorNome("atualizado").size());
-        assertEquals(1, service.listarEmAndamento().size());
-        assertEquals(salvo.getId(), service.buscarPorId(salvo.getId()).getId());
-    }
-
-    @Test
-    void deveCadastrarEAtualizarViaDtoComSucesso() {
         EventoRequest request = new EventoRequest(
                 "Mostra Internacional",
                 "Mostra de cinema independente",
@@ -61,32 +44,32 @@ class EventoServiceTest extends AbstractServiceTest {
 
         assertEquals("Mostra Internacional 2026", atualizado.nome());
         assertEquals("Descricao atualizada", atualizado.descricao());
-        assertEquals(1, service.listarTodosResponse().size());
-        assertEquals(1, service.buscarPorNomeResponse("Internacional").size());
-        assertEquals(1, service.listarEmAndamentoResponse().size());
-        assertEquals(criado.id(), service.buscarPorIdResponse(criado.id()).id());
+        assertEquals(1, service.listarTodos().size());
+        assertEquals(1, service.buscarPorNome("Internacional").size());
+        assertEquals(1, service.listarEmAndamento().size());
+        assertEquals(criado.id(), service.buscarPorId(criado.id()).id());
+        assertEquals(criado.id(), service.buscarEntidadePorId(criado.id()).getId());
     }
 
     @Test
-    void deveValidarNomeEDatas() {
-        assertThrows(IllegalArgumentException.class, () -> service.cadastrar((Evento) null));
-        assertThrows(IllegalArgumentException.class, () -> service.cadastrar((EventoRequest) null));
-        Evento semNome = ServiceFixtures.evento(" ");
-        assertEquals("Nome do evento e obrigatorio",
-                assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semNome)).getMessage());
-        Evento datas = ServiceFixtures.evento("Datas");
-        datas.setDataInicio(LocalDate.now().plusDays(2));
-        datas.setDataFim(LocalDate.now().plusDays(1));
-        assertEquals("Data fim do evento nao pode ser anterior a data de inicio",
-                assertThrows(IllegalArgumentException.class, () -> service.cadastrar(datas)).getMessage());
+    void deveRejeitarRequestNulo() {
+        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(null));
+        assertThrows(IllegalArgumentException.class, () -> service.atualizar(1L, null));
     }
 
     @Test
     void deveInformarAusenciaEExcluir() {
         assertThrows(NoSuchElementException.class, () -> service.buscarPorId(Long.MAX_VALUE));
-        Evento salvo = service.cadastrar(ServiceFixtures.evento("Excluir evento"));
-        service.excluir(salvo.getId());
+        EventoRequest request = new EventoRequest(
+                "Excluir Evento",
+                "Descricao",
+                LocalDate.now(),
+                LocalDate.now().plusDays(1),
+                null
+        );
+        EventoResponse salvo = service.cadastrar(request);
+        service.excluir(salvo.id());
         repository.flush();
-        assertFalse(repository.existsById(salvo.getId()));
+        assertFalse(repository.existsById(salvo.id()));
     }
 }

@@ -44,8 +44,9 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
 
         assertNotNull(salva.id());
         assertEquals("Filme Teste", salva.titulo());
-        assertFalse(salva.disponivel());
-        assertEquals(StatusObra.RASCUNHO, salva.status());
+        ObraAudiovisual recarregada = service.buscarEntidadePorId(salva.id());
+        assertFalse(recarregada.getDisponivel());
+        assertEquals(StatusObra.RASCUNHO, recarregada.getStatus());
     }
 
     @Test

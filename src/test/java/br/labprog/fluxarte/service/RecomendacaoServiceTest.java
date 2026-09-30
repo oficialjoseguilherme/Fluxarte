@@ -1,5 +1,6 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.request.HistoricoVisualizacaoRequest;
 import br.labprog.fluxarte.model.GeneroObra;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
@@ -61,7 +62,7 @@ class RecomendacaoServiceTest extends AbstractServiceTest {
         assistida.setDiretor("Direção Comum");
         obraRepository.saveAndFlush(assistida);
         MidiaStreaming midia = salvarMidia(assistida, TipoMidia.PRINCIPAL);
-        historicoService.registrar(usuario.getId(), midia.getId(), 1200, true);
+        historicoService.registrar(usuario.getId(), new HistoricoVisualizacaoRequest(midia.getId(), 1200, true));
         ObraAudiovisual candidata = salvarObra("Mesmo diretor");
         candidata.setDiretor("  direção comum  ");
         obraRepository.saveAndFlush(candidata);
@@ -87,7 +88,7 @@ class RecomendacaoServiceTest extends AbstractServiceTest {
         assistida.getGeneros().add(genero);
         obraRepository.saveAndFlush(assistida);
         historicoService.registrar(usuario.getId(),
-                salvarMidia(assistida, TipoMidia.PRINCIPAL).getId(), 100, true);
+                new HistoricoVisualizacaoRequest(salvarMidia(assistida, TipoMidia.PRINCIPAL).getId(), 100, true));
         ObraAudiovisual candidata = salvarObra("Candidata única");
         candidata.setDiretor("Diretor igual");
         candidata.getGeneros().add(genero);

@@ -57,59 +57,17 @@ public class ProgressoVisualizacaoService {
         return Optional.of(progressoMapper.toResponse(progressoRepository.save(progresso)));
     }
 
-    @Transactional
-    public ProgressoVisualizacao salvarProgresso(UUID usuarioId, Long midiaId, Integer posicaoSegundos) {
-        if (posicaoSegundos == null || posicaoSegundos < 0) {
-            throw new IllegalArgumentException("Posicao deve ser maior ou igual a zero");
-        }
-
-        MidiaStreaming midia = midiaService.buscarEntidadePorId(midiaId);
-
-        if (midia.getDuracaoSegundos() != null && posicaoSegundos > midia.getDuracaoSegundos()) {
-            throw new IllegalArgumentException("Posicao nao pode ser maior que a duracao da midia");
-        }
-
-        if (midia.getDuracaoSegundos() != null && posicaoSegundos.equals(midia.getDuracaoSegundos())) {
-            remover(usuarioId, midiaId);
-            return null;
-        }
-
-        Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
-        ProgressoVisualizacao progresso = progressoRepository
-                .findByUsuarioIdAndMidiaId(usuarioId, midiaId)
-                .orElseGet(() -> ProgressoVisualizacao.builder()
-                        .usuario(usuario)
-                        .obra(midia.getObra())
-                        .midia(midia)
-                        .build());
-
-        progresso.setPosicaoSegundos(posicaoSegundos);
-        progresso.setAtualizadoEm(LocalDateTime.now());
-
-        return progressoRepository.save(progresso);
-    }
-
     @Transactional(readOnly = true)
-    public Optional<ProgressoVisualizacaoResponse> buscarProgressoResponse(UUID usuarioId, Long midiaId) {
+    public Optional<ProgressoVisualizacaoResponse> buscarProgresso(UUID usuarioId, Long midiaId) {
         return progressoRepository.findByUsuarioIdAndMidiaId(usuarioId, midiaId)
                 .map(progressoMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
-    public Optional<ProgressoVisualizacao> buscarProgresso(UUID usuarioId, Long midiaId) {
-        return progressoRepository.findByUsuarioIdAndMidiaId(usuarioId, midiaId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProgressoVisualizacaoResponse> listarPorUsuarioResponse(UUID usuarioId) {
+    public List<ProgressoVisualizacaoResponse> listarPorUsuario(UUID usuarioId) {
         return progressoRepository.findByUsuarioIdOrderByAtualizadoEmDesc(usuarioId).stream()
                 .map(progressoMapper::toResponse)
                 .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProgressoVisualizacao> listarPorUsuario(UUID usuarioId) {
-        return progressoRepository.findByUsuarioIdOrderByAtualizadoEmDesc(usuarioId);
     }
 
     @Transactional

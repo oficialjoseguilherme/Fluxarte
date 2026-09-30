@@ -2,7 +2,6 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.HistoricoVisualizacaoRequest;
 import br.labprog.fluxarte.dto.response.HistoricoVisualizacaoResponse;
-import br.labprog.fluxarte.model.HistoricoVisualizacao;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.Usuario;
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,16 +26,18 @@ class HistoricoVisualizacaoServiceTest extends AbstractServiceTest {
         ObraAudiovisual obra = salvarObra("Histórico service");
         MidiaStreaming midia = salvarMidia(obra, TipoMidia.PRINCIPAL);
 
-        HistoricoVisualizacao primeiro = service.registrar(usuario.getId(), midia.getId(), 120, null);
-        HistoricoVisualizacao segundo = service.registrar(usuario.getId(), midia.getId(), 600, true);
+        HistoricoVisualizacaoResponse primeiro = service.registrar(
+                usuario.getId(), new HistoricoVisualizacaoRequest(midia.getId(), 120, null));
+        HistoricoVisualizacaoResponse segundo = service.registrar(
+                usuario.getId(), new HistoricoVisualizacaoRequest(midia.getId(), 600, true));
 
-        assertNotEquals(primeiro.getId(), segundo.getId());
+        assertNotEquals(primeiro.id(), segundo.id());
         assertEquals(2, repository.count());
-        assertEquals(obra.getId(), segundo.getObra().getId());
-        assertEquals(midia.getId(), segundo.getMidia().getId());
-        assertFalse(primeiro.getConcluido());
-        assertTrue(segundo.getConcluido());
-        assertNotNull(segundo.getDataVisualizacao());
+        assertEquals(obra.getId(), segundo.obraId());
+        assertEquals(midia.getId(), segundo.midiaId());
+        assertFalse(primeiro.concluido());
+        assertTrue(segundo.concluido());
+        assertNotNull(segundo.dataVisualizacao());
     }
 
     @Test
@@ -55,16 +57,15 @@ class HistoricoVisualizacaoServiceTest extends AbstractServiceTest {
         assertTrue(response.concluido());
         assertNotNull(response.dataVisualizacao());
 
-        List<HistoricoVisualizacaoResponse> lista = service.listarPorUsuarioResponse(usuario.getId());
+        List<HistoricoVisualizacaoResponse> lista = service.listarPorUsuario(usuario.getId());
         assertEquals(1, lista.size());
         assertEquals(response.id(), lista.get(0).id());
     }
 
     @Test
-    void deveRejeitarTempoNegativo() {
-        IllegalArgumentException erro = assertThrows(IllegalArgumentException.class,
-                () -> service.registrar(java.util.UUID.randomUUID(), 1L, -1, false));
-        assertEquals("Tempo assistido nao pode ser negativo", erro.getMessage());
+    void deveRejeitarRequestNulo() {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.registrar(UUID.randomUUID(), null));
     }
 
     @Test
@@ -72,11 +73,13 @@ class HistoricoVisualizacaoServiceTest extends AbstractServiceTest {
         Usuario usuario = salvarUsuario("listar-historico@teste.com");
         ObraAudiovisual obra = salvarObra("Listar histórico");
         MidiaStreaming midia = salvarMidia(obra, TipoMidia.PRINCIPAL);
-        service.registrar(usuario.getId(), midia.getId(), 10, false);
-        HistoricoVisualizacao recente = service.registrar(usuario.getId(), midia.getId(), 20, false);
+        service.registrar(usuario.getId(), new HistoricoVisualizacaoRequest(midia.getId(), 10, false));
+        HistoricoVisualizacaoResponse recente = service.registrar(
+                usuario.getId(), new HistoricoVisualizacaoRequest(midia.getId(), 20, false));
 
         var resultado = service.listarPorUsuario(usuario.getId());
         assertEquals(2, resultado.size());
-        assertEquals(recente.getId(), resultado.get(0).getId());
+        assertEquals(recente.id(), resultado.get(0).id());
+        assertEquals(recente.id(), service.listarEntidadesPorUsuario(usuario.getId()).get(0).getId());
     }
 }
