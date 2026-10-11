@@ -8,8 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import br.labprog.fluxarte.exceptions.ConflitoException;
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,7 +63,7 @@ class UsuarioServiceTest extends AbstractServiceTest {
 
         UsuarioCadastroRequest duplicado = new UsuarioCadastroRequest(
                 "Outra", "duplicado@teste.com", "senha", LocalDate.of(2000, 1, 1), null, false);
-        IllegalArgumentException erro = assertThrows(IllegalArgumentException.class,
+        ConflitoException erro = assertThrows(ConflitoException.class,
                 () -> service.cadastrar(duplicado));
         assertEquals("Ja existe um usuario cadastrado com esse email", erro.getMessage());
     }
@@ -73,9 +75,9 @@ class UsuarioServiceTest extends AbstractServiceTest {
         assertEquals(usuario.getId(), service.buscarPorId(usuario.getId()).id());
         assertEquals(usuario.getId(), service.buscarEntidadePorId(usuario.getId()).getId());
 
-        NoSuchElementException erro = assertThrows(NoSuchElementException.class,
+        RecursoNaoEncontradoException erro = assertThrows(RecursoNaoEncontradoException.class,
                 () -> service.buscarPorId(UUID.randomUUID()));
-        assertTrue(erro.getMessage().startsWith("Usuario nao encontrado:"));
+        assertEquals("Usuario nao encontrado", erro.getMessage());
     }
 
     @Test

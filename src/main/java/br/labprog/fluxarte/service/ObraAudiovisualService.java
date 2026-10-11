@@ -13,9 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +63,7 @@ public class ObraAudiovisualService {
     @Transactional(readOnly = true)
     public ObraAudiovisual buscarEntidadePorId(Long id) {
         return obraRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Obra nao encontrada: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Obra nao encontrada"));
     }
 
     @Transactional(readOnly = true)

@@ -10,7 +10,9 @@ import br.labprog.fluxarte.repository.EventoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.NoSuchElementException;
+import br.labprog.fluxarte.exceptions.ConflitoException;
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,7 +70,7 @@ class EventoObraServiceTest extends AbstractServiceTest {
         );
 
         assertEquals("Data de inicio da estreia nao pode ser anterior ao inicio do evento",
-                assertThrows(IllegalArgumentException.class,
+                assertThrows(RegraNegocioException.class,
                         () -> service.adicionarObra(evento.getId(), antesDoEvento)).getMessage());
 
         EventoObraRequest depoisDoEvento = new EventoObraRequest(
@@ -81,7 +83,7 @@ class EventoObraServiceTest extends AbstractServiceTest {
         );
 
         assertEquals("Data de fim da estreia nao pode ser posterior ao fim do evento",
-                assertThrows(IllegalArgumentException.class,
+                assertThrows(RegraNegocioException.class,
                         () -> service.adicionarObra(evento.getId(), depoisDoEvento)).getMessage());
     }
 
@@ -114,7 +116,7 @@ class EventoObraServiceTest extends AbstractServiceTest {
         );
         service.adicionarObra(evento.getId(), request);
         assertEquals("Essa obra ja faz parte da programacao do evento",
-                assertThrows(IllegalArgumentException.class,
+                assertThrows(ConflitoException.class,
                         () -> service.adicionarObra(evento.getId(), request)).getMessage());
         assertThrows(IllegalArgumentException.class,
                 () -> service.adicionarObra(evento.getId(), null));
@@ -124,7 +126,7 @@ class EventoObraServiceTest extends AbstractServiceTest {
 
     @Test
     void deveInformarAusenciaERemover() {
-        assertThrows(NoSuchElementException.class, () -> service.buscarPorId(Long.MAX_VALUE));
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.buscarPorId(Long.MAX_VALUE));
         Evento evento = eventoRepository.saveAndFlush(ServiceFixtures.evento("Remover"));
         ObraAudiovisual obra = salvarObra("Remover vínculo");
         EventoObraRequest request = new EventoObraRequest(

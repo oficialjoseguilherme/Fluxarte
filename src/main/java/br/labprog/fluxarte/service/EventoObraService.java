@@ -2,6 +2,9 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.EventoObraRequest;
 import br.labprog.fluxarte.dto.response.EventoObraResponse;
+import br.labprog.fluxarte.exceptions.ConflitoException;
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 import br.labprog.fluxarte.mapper.EventoObraMapper;
 import br.labprog.fluxarte.model.Evento;
 import br.labprog.fluxarte.model.EventoObra;
@@ -13,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class EventoObraService {
             throw new IllegalArgumentException("Dados da obra do evento sao obrigatorios");
         }
         if (eventoObraRepository.existsByEventoIdAndObraId(eventoId, request.obraId())) {
-            throw new IllegalArgumentException("Essa obra ja faz parte da programacao do evento");
+            throw new ConflitoException("Essa obra ja faz parte da programacao do evento");
         }
 
         Evento evento = eventoService.buscarEntidadePorId(eventoId);
@@ -43,7 +45,6 @@ public class EventoObraService {
 
         return eventoObraMapper.toResponse(eventoObraRepository.save(eventoObra));
     }
-
 
     @Transactional
     public EventoObraResponse atualizar(Long id, EventoObraRequest request) {
@@ -58,7 +59,6 @@ public class EventoObraService {
         return eventoObraMapper.toResponse(eventoObraRepository.save(eventoObra));
     }
 
-
     @Transactional(readOnly = true)
     public EventoObraResponse buscarPorId(Long id) {
         return eventoObraMapper.toResponse(buscarEntidadePorId(id));
@@ -67,7 +67,7 @@ public class EventoObraService {
     @Transactional(readOnly = true)
     public EventoObra buscarEntidadePorId(Long id) {
         return eventoObraRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Obra do evento nao encontrada: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Obra do evento nao encontrada"));
     }
 
     @Transactional(readOnly = true)
@@ -99,10 +99,10 @@ public class EventoObraService {
 
     private void validarPeriodoEvento(Evento evento, LocalDateTime inicio, LocalDateTime fim) {
         if (evento.getDataInicio() != null && inicio != null && inicio.toLocalDate().isBefore(evento.getDataInicio())) {
-            throw new IllegalArgumentException("Data de inicio da estreia nao pode ser anterior ao inicio do evento");
+            throw new RegraNegocioException("Data de inicio da estreia nao pode ser anterior ao inicio do evento");
         }
         if (evento.getDataFim() != null && fim != null && fim.toLocalDate().isAfter(evento.getDataFim())) {
-            throw new IllegalArgumentException("Data de fim da estreia nao pode ser posterior ao fim do evento");
+            throw new RegraNegocioException("Data de fim da estreia nao pode ser posterior ao fim do evento");
         }
     }
 }

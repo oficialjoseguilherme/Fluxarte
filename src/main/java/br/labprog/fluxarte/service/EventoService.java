@@ -9,9 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class EventoService {
     @Transactional(readOnly = true)
     public Evento buscarEntidadePorId(Long id) {
         return eventoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Evento nao encontrado: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Evento nao encontrado"));
     }
 
     @Transactional(readOnly = true)

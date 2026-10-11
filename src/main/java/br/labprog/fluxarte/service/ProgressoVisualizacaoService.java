@@ -2,6 +2,7 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.ProgressoVisualizacaoRequest;
 import br.labprog.fluxarte.dto.response.ProgressoVisualizacaoResponse;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 import br.labprog.fluxarte.mapper.ProgressoVisualizacaoMapper;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ProgressoVisualizacao;
@@ -34,7 +35,7 @@ public class ProgressoVisualizacaoService {
         MidiaStreaming midia = midiaService.buscarEntidadePorId(request.midiaId());
 
         if (midia.getDuracaoSegundos() != null && request.posicaoSegundos() > midia.getDuracaoSegundos()) {
-            throw new IllegalArgumentException("Posicao nao pode ser maior que a duracao da midia");
+            throw new RegraNegocioException("Posicao nao pode ser maior que a duracao da midia");
         }
 
         if (midia.getDuracaoSegundos() != null && request.posicaoSegundos().equals(midia.getDuracaoSegundos())) {

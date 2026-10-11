@@ -11,9 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +62,7 @@ public class MidiaStreamingService {
     @Transactional(readOnly = true)
     public MidiaStreaming buscarEntidadePorId(Long id) {
         return midiaRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Midia nao encontrada: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Midia nao encontrada"));
     }
 
     @Transactional(readOnly = true)

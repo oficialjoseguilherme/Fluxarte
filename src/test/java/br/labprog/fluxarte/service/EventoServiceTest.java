@@ -6,8 +6,9 @@ import br.labprog.fluxarte.repository.EventoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,7 +60,7 @@ class EventoServiceTest extends AbstractServiceTest {
 
     @Test
     void deveInformarAusenciaEExcluir() {
-        assertThrows(NoSuchElementException.class, () -> service.buscarPorId(Long.MAX_VALUE));
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.buscarPorId(Long.MAX_VALUE));
         EventoRequest request = new EventoRequest(
                 "Excluir Evento",
                 "Descricao",

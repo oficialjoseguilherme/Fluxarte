@@ -2,6 +2,8 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.UsuarioCadastroRequest;
 import br.labprog.fluxarte.dto.response.UsuarioResponse;
+import br.labprog.fluxarte.exceptions.ConflitoException;
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
 import br.labprog.fluxarte.mapper.UsuarioMapper;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.UsuarioRepository;
@@ -10,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -37,7 +38,7 @@ public class UsuarioService {
         }
 
         if (usuarioRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Ja existe um usuario cadastrado com esse email");
+            throw new ConflitoException("Ja existe um usuario cadastrado com esse email");
         }
 
         Usuario usuario = usuarioMapper.toEntity(request);
@@ -55,6 +56,6 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public Usuario buscarEntidadePorId(UUID id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Usuario nao encontrado: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario nao encontrado"));
     }
 }

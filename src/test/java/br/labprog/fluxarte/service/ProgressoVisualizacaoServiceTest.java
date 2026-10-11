@@ -2,6 +2,7 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.ProgressoVisualizacaoRequest;
 import br.labprog.fluxarte.dto.response.ProgressoVisualizacaoResponse;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 import br.labprog.fluxarte.model.MidiaStreaming;
 import br.labprog.fluxarte.model.ObraAudiovisual;
 import br.labprog.fluxarte.model.Usuario;
@@ -65,7 +66,7 @@ class ProgressoVisualizacaoServiceTest extends AbstractServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> service.salvarProgresso(usuario.getId(), null));
         assertEquals("Posicao nao pode ser maior que a duracao da midia",
-                assertThrows(IllegalArgumentException.class,
+                assertThrows(RegraNegocioException.class,
                         () -> service.salvarProgresso(usuario.getId(),
                                 new ProgressoVisualizacaoRequest(midia.getId(), 1201))).getMessage());
     }

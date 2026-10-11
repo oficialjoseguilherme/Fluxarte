@@ -10,8 +10,9 @@ import br.labprog.fluxarte.repository.GeneroObraRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -123,7 +124,7 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
         assertEquals(1, service.buscarPorTitulo("especial").size());
         assertEquals(1, service.buscarPorDiretor("único").size());
         assertEquals(1, service.listarExibiveis().size());
-        assertThrows(NoSuchElementException.class, () -> service.buscarPorId(Long.MAX_VALUE));
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.buscarPorId(Long.MAX_VALUE));
     }
 
     @Test

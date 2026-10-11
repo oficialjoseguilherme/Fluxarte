@@ -11,7 +11,7 @@ import br.labprog.fluxarte.model.enums.TipoPlayer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.NoSuchElementException;
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,8 +83,8 @@ class MidiaStreamingServiceTest extends AbstractServiceTest {
                 120,
                 null
         );
-        assertThrows(NoSuchElementException.class, () -> service.cadastrar(request));
-        assertThrows(NoSuchElementException.class, () -> service.buscarPorId(Long.MAX_VALUE));
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.cadastrar(request));
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.buscarPorId(Long.MAX_VALUE));
     }
 
     @Test

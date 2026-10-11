@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -74,7 +74,7 @@ class AtividadeUsuarioServiceTest extends AbstractServiceTest {
 
         AtividadeUsuarioRequest invalida = new AtividadeUsuarioRequest(
                 TipoAtividade.VIEW_TRAILER, null, Long.MAX_VALUE, null);
-        assertThrows(NoSuchElementException.class,
+        assertThrows(RecursoNaoEncontradoException.class,
                 () -> service.registrar(usuario.getId(), invalida));
     }
 
