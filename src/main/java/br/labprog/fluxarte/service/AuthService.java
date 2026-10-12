@@ -70,6 +70,16 @@ public class AuthService {
     }
 
     @Transactional
+    public RefreshToken login(String email, String senha) {
+        return autenticar(email, senha);
+    }
+
+    @Transactional
+    public RefreshToken renovar(String tokenValor) {
+        return rotacionar(tokenValor);
+    }
+
+    @Transactional
     public void logout(RefreshTokenRequest request) {
         if (request == null || request.refreshToken() == null || request.refreshToken().isBlank()) {
             return;

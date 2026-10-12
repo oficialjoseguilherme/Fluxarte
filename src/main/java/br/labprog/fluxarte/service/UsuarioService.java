@@ -7,11 +7,13 @@ import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
 import br.labprog.fluxarte.mapper.UsuarioMapper;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.UsuarioRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -48,6 +50,15 @@ public class UsuarioService {
         return usuarioMapper.toResponse(salvo);
     }
 
+    @Transactional
+    public Usuario cadastrar(String nome, String email, String senha, LocalDate dataNascimento) {
+        UsuarioCadastroRequest request = new UsuarioCadastroRequest(
+                nome, email, senha, dataNascimento, null, false
+        );
+        UsuarioResponse salvo = cadastrar(request);
+        return buscarEntidadePorId(salvo.id());
+    }
+
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorId(UUID id) {
         return usuarioMapper.toResponse(buscarEntidadePorId(id));
@@ -57,5 +68,34 @@ public class UsuarioService {
     public Usuario buscarEntidadePorId(UUID id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario nao encontrado"));
+    }
+
+    @Transactional
+    public Usuario atualizarPerfil(UUID id, String nomeExibicao, Boolean aceitaConteudoAdulto) {
+        Usuario usuario = buscarEntidadePorId(id);
+
+        if (nomeExibicao != null && !nomeExibicao.isBlank()) {
+            usuario.setNomeExibicao(nomeExibicao);
+        }
+        if (aceitaConteudoAdulto != null) {
+            usuario.setAceitaConteudoAdulto(aceitaConteudoAdulto);
+        }
+
+        return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void desativar(UUID id) {
+        Usuario usuario = buscarEntidadePorId(id);
+        usuario.setAtivo(false);
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean autenticar(@NonNull String email, String senha) {
+        return usuarioRepository.findByEmail(email)
+                .filter(usuario -> Boolean.TRUE.equals(usuario.getAtivo()))
+                .map(usuario -> passwordEncoder.matches(senha, usuario.getSenhaHash()))
+                .orElse(false);
     }
 }
