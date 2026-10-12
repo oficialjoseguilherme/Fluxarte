@@ -55,6 +55,26 @@ public class UsuarioService {
                 .orElseThrow(() -> new NoSuchElementException("Usuario nao encontrado: " + id));
     }
 
+    @Transactional
+    public Usuario atualizarPerfil(UUID id, String nomeExibicao, Boolean aceitaConteudoAdulto) {
+        Usuario usuario = buscarPorId(id);
+
+        if (nomeExibicao != null && !nomeExibicao.isBlank()) {
+            usuario.setNomeExibicao(nomeExibicao);
+        }
+        if (aceitaConteudoAdulto != null) {
+            usuario.setAceitaConteudoAdulto(aceitaConteudoAdulto);
+        }
+
+        return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void desativar(UUID id) {
+        Usuario usuario = buscarPorId(id);
+        usuario.setAtivo(false);
+        usuarioRepository.save(usuario);
+    }
 
     // TODO enviar  para o security resolver
     @Transactional
