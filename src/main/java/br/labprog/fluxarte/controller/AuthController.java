@@ -1,6 +1,11 @@
 package br.labprog.fluxarte.controller;
 
-import br.labprog.fluxarte.dto.auth.*;
+import br.labprog.fluxarte.dto.auth.LoginRequest;
+import br.labprog.fluxarte.dto.auth.LogoutRequest;
+import br.labprog.fluxarte.dto.auth.RegistroRequest;
+import br.labprog.fluxarte.dto.auth.RenovarTokenRequest;
+import br.labprog.fluxarte.dto.auth.TokenResponse;
+import br.labprog.fluxarte.dto.auth.UsuarioResponse;
 import br.labprog.fluxarte.model.RefreshToken;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.security.JwtService;
@@ -24,7 +29,7 @@ public class AuthController {
     private final UsuarioService usuarioService;
 
     @PostMapping("/registrar")
-    public ResponseEntity<?> registrar(@RequestBody RegistroRequest request) {
+    public ResponseEntity<UsuarioResponse> registrar(@RequestBody RegistroRequest request) {
         Usuario usuario = usuarioService.cadastrar(
                 request.nome(), request.email(), request.senha(), request.dataNascimento()
         );
@@ -39,13 +44,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         RefreshToken refreshToken = authService.login(request.email(), request.senha());
         return ResponseEntity.ok(gerarResposta(refreshToken));
     }
 
     @PostMapping("/renovar")
-    public ResponseEntity<?> renovar(@RequestBody RenovarTokenRequest request) {
+    public ResponseEntity<TokenResponse> renovar(@RequestBody RenovarTokenRequest request) {
         RefreshToken novoRefreshToken = authService.renovar(request.refreshToken());
         return ResponseEntity.ok(gerarResposta(novoRefreshToken));
     }

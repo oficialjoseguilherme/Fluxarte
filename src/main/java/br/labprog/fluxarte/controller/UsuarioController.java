@@ -1,6 +1,7 @@
 package br.labprog.fluxarte.controller;
 
 import br.labprog.fluxarte.dto.request.AtualizarPerfilRequest;
+import br.labprog.fluxarte.dto.response.UsuarioResponse;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -18,15 +19,15 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication authentication) {
+    public ResponseEntity<UsuarioResponse> me(Authentication authentication) {
         UUID usuarioId = (UUID) authentication.getPrincipal();
         Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
         return ResponseEntity.ok(mapearParaResponseCompleto(usuario));
     }
 
     @PutMapping("/me")
-    public ResponseEntity<?> atualizarMe(Authentication authentication,
-                                         @RequestBody AtualizarPerfilRequest request) {
+    public ResponseEntity<UsuarioResponse> atualizarMe(Authentication authentication,
+                                                       @RequestBody AtualizarPerfilRequest request) {
         UUID usuarioId = (UUID) authentication.getPrincipal();
         Usuario usuario = usuarioService.atualizarPerfil(
                 usuarioId, request.nomeExibicao(), request.aceitaConteudoAdulto()
@@ -42,20 +43,26 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable UUID id) {
+    public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable UUID id) {
         Usuario usuario = usuarioService.buscarEntidadePorId(id);
         return ResponseEntity.ok(mapearParaResponsePublico(usuario));
     }
 
-    private br.labprog.fluxarte.dto.auth.UsuarioResponse mapearParaResponseCompleto(Usuario usuario) {
-        return new br.labprog.fluxarte.dto.auth.UsuarioResponse(
-                usuario.getId(), usuario.getNome(), usuario.getEmail(),
-                usuario.getNomeExibicao(), usuario.getTipoUsuario()
+    private UsuarioResponse mapearParaResponseCompleto(Usuario usuario) {
+        return new UsuarioResponse(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getNomeExibicao(),
+                usuario.getDataNascimento(),
+                usuario.getAceitaConteudoAdulto(),
+                usuario.getTipoUsuario(),
+                usuario.getAtivo()
         );
     }
 
-    private br.labprog.fluxarte.dto.response.UsuarioResponse mapearParaResponsePublico(Usuario usuario) {
-        return new br.labprog.fluxarte.dto.response.UsuarioResponse(
+    private UsuarioResponse mapearParaResponsePublico(Usuario usuario) {
+        return new UsuarioResponse(
                 usuario.getId(), usuario.getNomeExibicao(), usuario.getTipoUsuario()
         );
     }
