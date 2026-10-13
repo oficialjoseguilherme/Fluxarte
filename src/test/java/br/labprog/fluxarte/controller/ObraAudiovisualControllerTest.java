@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -231,6 +231,21 @@ class ObraAudiovisualControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.mensagem").value("Obra não encontrada."));
+    }
+
+    @Test
+    void bucar_comTitulo_deveChamarBuscaPorTitulo() throws Exception {
+        when(obraService.buscarPorTitulo("Toy")).thenReturn(List.of(obraAudiovisualResponsePadrao()));
+
+        mockMvc.perform(get("/api/obras/busca")
+                        .param("titulo", "Toy")
+                        .with(user("usuario")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].titulo").value("Toy Story"));
+
+        verify(obraService, never()).buscarPorDiretor(any());
+        verify(obraService, never()).listarTodas();
     }
 
     private ObraAudiovisualResponse obraAudiovisualResponsePadrao() {
