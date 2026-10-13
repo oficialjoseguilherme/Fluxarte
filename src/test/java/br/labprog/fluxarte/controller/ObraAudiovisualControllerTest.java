@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -360,6 +359,66 @@ class ObraAudiovisualControllerTest {
                         containsInAnyOrder("ANIMACAO")));
 
         verify(obraService).adicionarGenero(id, nomeGenero);
+    }
+
+    @Test
+    void removerGenero_comIdValido_deveRetornar200ComObraComGeneroRemovido() throws Exception {
+        Long id = 1L;
+        NomeGenero nomeGenero = NomeGenero.ANIMACAO;
+
+        String titulo = "Toy Story";
+        String tituloOriginal = "Toy Story";
+        String diretor = "John Lasseter";
+        String sinopse = "Brinquedos ganham vida e olha no que deu.";
+        int anoProducao = 1995;
+        String idiomaOriginal = "Inglês";
+        String posterUrl = "posterUrl";
+        String bannerUrl = "bannerUrl";
+        boolean disponivel = true;
+        StatusObra status = StatusObra.ATIVO;
+        LocalDateTime dataInicioExibicao = LocalDateTime.of(2026, 10, 25, 8, 0);
+        LocalDateTime dataFimExibicao = LocalDateTime.of(2027, 10, 25, 17, 0);
+        ClassificacaoIndicativa classificacaoIndicativa = ClassificacaoIndicativa.LIVRE;
+        Set<NomeGenero> generos = Set.of();
+
+        ObraAudiovisualResponse response = new ObraAudiovisualResponse(
+                id,
+                titulo,
+                tituloOriginal,
+                diretor,
+                sinopse,
+                anoProducao,
+                idiomaOriginal,
+                posterUrl,
+                bannerUrl,
+                dataInicioExibicao,
+                dataFimExibicao,
+                classificacaoIndicativa,
+                generos,
+                disponivel
+        );
+        when(obraService.removerGenero(id, nomeGenero)).thenReturn(response);
+
+        mockMvc.perform(delete("/api/obras/{id}/generos/{genero}", id, nomeGenero)
+                        .with(user("usuario"))
+                        .with(csrf())
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.generos", not(hasItem(NomeGenero.ANIMACAO.name()))));
+
+        verify(obraService).removerGenero(id, nomeGenero);
+    }
+
+    @Test
+    void excluir_comIdValido_deveRetornar204SemCorpo() throws Exception {
+        Long id = 1L;
+
+        mockMvc.perform(delete("/api/obras/{id}", id)
+                        .with(user("usuario"))
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(obraService).excluir(id);
     }
 
 
