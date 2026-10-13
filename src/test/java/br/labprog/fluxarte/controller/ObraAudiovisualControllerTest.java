@@ -3,6 +3,7 @@ package br.labprog.fluxarte.controller;
 
 import br.labprog.fluxarte.dto.request.ObraAudiovisualRequest;
 import br.labprog.fluxarte.dto.response.ObraAudiovisualResponse;
+import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
 import br.labprog.fluxarte.model.GeneroObra;
 import br.labprog.fluxarte.model.enums.ClassificacaoIndicativa;
 import br.labprog.fluxarte.model.enums.NomeGenero;
@@ -199,7 +200,6 @@ class ObraAudiovisualControllerTest {
 
         mockMvc.perform(get("/api/obras")
                         .with(user("usuario")))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -208,6 +208,29 @@ class ObraAudiovisualControllerTest {
                 .andExpect(jsonPath("$[1].titulo").value("Shrek"))
                 .andExpect(jsonPath("$[2].id").value(3))
                 .andExpect(jsonPath("$[2].titulo").value("Free Solo"));
+    }
+
+    @Test
+    void buscarPorId_comIdExistente_deveRetornar200ComAObra() throws Exception {
+        when(obraService.buscarPorId(1L)).thenReturn(obraAudiovisualResponsePadrao());
+
+        mockMvc.perform(get("/api/obras/{id}", 1)
+                        .with(user("usuario")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.titulo").value("Toy Story"))
+                .andExpect(jsonPath("$.diretor").value("John Lasseter"));
+    }
+
+    @Test
+    void buscarPorId_comIdInexistente_deveRetornar404() throws Exception {
+        when(obraService.buscarPorId(13L)).thenThrow(new RecursoNaoEncontradoException("Obra não encontrada."));
+
+        mockMvc.perform(get("/api/obras/{id}", 13L)
+                        .with(user("usuario")))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.mensagem").value("Obra não encontrada."));
     }
 
     private ObraAudiovisualResponse obraAudiovisualResponsePadrao() {
