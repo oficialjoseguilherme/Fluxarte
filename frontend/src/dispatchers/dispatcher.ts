@@ -1,3 +1,6 @@
+//para o catalogo
+import type { Obra } from '../types/obra'
+
 //para o loginpage
 import type { TokenResponse } from '../apis/authapi'
 
@@ -5,15 +8,19 @@ import type { TokenResponse } from '../apis/authapi'
 
 // para o cadastropage
 export type AppAction =
+  | { type: 'CADASTRO_INICIADO' }
+  | { type: 'CADASTRO_FALHOU'; mensagem: string }
+  | { type: 'CADASTRO_SUCESSO' }
+  | { type: 'CADASTRO_RESETADO' }
+
   | { type: 'LOGIN_INICIADO' }
   | { type: 'LOGIN_SUCESSO'; tokens: TokenResponse }
   | { type: 'LOGIN_FALHOU'; mensagem: string }
   | { type: 'LOGIN_RESETADO' }
 
-  | { type: 'CADASTRO_INICIADO' }
-  | { type: 'CADASTRO_FALHOU'; mensagem: string }
-  | { type: 'CADASTRO_SUCESSO' }
-  | { type: 'CADASTRO_RESETADO' }
+  | { type: 'CATALOGO_INICIADO'}
+  | { type: 'CATALOGO_SUCESSO'; obras: Obra[] }
+  | { type: 'CATALOGO_FALHOU'; mensagem: string }
 
 type ActionHandler = (action: AppAction) => void
 

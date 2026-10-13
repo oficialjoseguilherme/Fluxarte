@@ -1,5 +1,5 @@
 import { register } from '../apis/authapi'
-import type { registerRequest } from '../apis/authapi'
+import type { registerRequest } from "../apis/authapi"
 import { dispatcher } from '../dispatchers/dispatcher'
 import { cadastroStore } from '../stores/cadastroStore'
 import { login } from '../apis/authapi'
