@@ -121,7 +121,7 @@ class AuthControllerTest {
         LoginRequest request = new LoginRequest("carlos@fluxarte.com", "senha123");
 
         when(authService.login("carlos@fluxarte.com", "senha123")).thenReturn(refreshTokenTeste);
-        when(jwtService.gerarToken(usuarioId, "carlos@fluxarte.com")).thenReturn("jwt-access-token-xyz");
+        when(jwtService.gerarToken(usuarioId, "carlos@fluxarte.com", TipoUsuario.ESPECTADOR)).thenReturn("jwt-access-token-xyz");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -132,7 +132,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.tipo").value("Bearer"));
 
         verify(authService).login("carlos@fluxarte.com", "senha123");
-        verify(jwtService).gerarToken(usuarioId, "carlos@fluxarte.com");
+        verify(jwtService).gerarToken(usuarioId, "carlos@fluxarte.com", TipoUsuario.ESPECTADOR);
     }
 
     @Test
@@ -155,7 +155,7 @@ class AuthControllerTest {
         RenovarTokenRequest request = new RenovarTokenRequest("refresh-token-antigo");
 
         when(authService.renovar("refresh-token-antigo")).thenReturn(refreshTokenTeste);
-        when(jwtService.gerarToken(usuarioId, "carlos@fluxarte.com")).thenReturn("novo-jwt-access-token");
+        when(jwtService.gerarToken(usuarioId, "carlos@fluxarte.com", TipoUsuario.ESPECTADOR)).thenReturn("novo-jwt-access-token");
 
         mockMvc.perform(post("/api/auth/renovar")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -166,6 +166,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.tipo").value("Bearer"));
 
         verify(authService).renovar("refresh-token-antigo");
+        verify(jwtService).gerarToken(usuarioId, "carlos@fluxarte.com", TipoUsuario.ESPECTADOR);
     }
 
     @Test

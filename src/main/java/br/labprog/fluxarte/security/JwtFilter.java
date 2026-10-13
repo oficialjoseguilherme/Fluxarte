@@ -1,11 +1,13 @@
 package br.labprog.fluxarte.security;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,10 +33,18 @@ public class JwtFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
 
-            if (jwtService.tokenValido(token)) {
-                UUID usuarioId = jwtService.extrairUsuarioId(token);
-                var auth = new UsernamePasswordAuthenticationToken(usuarioId, null, List.of());
+            try {
+                Claims claims = jwtService.extrairClaims(token);
+                UUID usuarioId = UUID.fromString(claims.getSubject());
+                String role = claims.get("role", String.class);
+
+                var authorities = role != null && !role.isBlank()
+                        ? List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        : List.<SimpleGrantedAuthority>of();
+
+                var auth = new UsernamePasswordAuthenticationToken(usuarioId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (Exception ignored) {
             }
         }
 

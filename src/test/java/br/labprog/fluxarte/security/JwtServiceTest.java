@@ -1,5 +1,6 @@
 package br.labprog.fluxarte.security;
 
+import br.labprog.fluxarte.model.enums.TipoUsuario;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -28,6 +29,26 @@ class JwtServiceTest {
         String token = jwtService.gerarToken(usuarioId, "ana@fluxarte.com");
 
         assertThat(jwtService.extrairUsuarioId(token)).isEqualTo(usuarioId);
+    }
+
+    @Test
+    void deveExtrairRolePadraoComoEspectadorQuandoNaoInformado() {
+        JwtService jwtService = new JwtService(SECRET, 900000L);
+        UUID usuarioId = UUID.randomUUID();
+
+        String token = jwtService.gerarToken(usuarioId, "ana@fluxarte.com");
+
+        assertThat(jwtService.extrairRole(token)).isEqualTo("ESPECTADOR");
+    }
+
+    @Test
+    void deveExtrairRoleAdminQuandoInformado() {
+        JwtService jwtService = new JwtService(SECRET, 900000L);
+        UUID usuarioId = UUID.randomUUID();
+
+        String token = jwtService.gerarToken(usuarioId, "admin@fluxarte.com", TipoUsuario.ADMIN);
+
+        assertThat(jwtService.extrairRole(token)).isEqualTo("ADMIN");
     }
 
     @Test

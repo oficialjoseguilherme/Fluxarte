@@ -64,7 +64,8 @@ public class AuthController {
     private TokenResponse gerarResposta(RefreshToken refreshToken) {
         String accessToken = jwtService.gerarToken(
                 refreshToken.getUsuario().getId(),
-                refreshToken.getUsuario().getEmail()
+                refreshToken.getUsuario().getEmail(),
+                refreshToken.getUsuario().getTipoUsuario()
         );
         return new TokenResponse(accessToken, refreshToken.getToken(), "Bearer");
     }
