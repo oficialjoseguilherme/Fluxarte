@@ -248,6 +248,69 @@ class ObraAudiovisualControllerTest {
         verify(obraService, never()).listarTodas();
     }
 
+    @Test
+    void atualizar_comIdValido_deveRetornar200ComObraAtualizada() throws Exception {
+        String titulo = "Toy Story";
+        String tituloOriginal = "Toy Story";
+        String diretor = "John Lasseter";
+        String sinopse = "Brinquedos ganham vida e olha no que deu.";
+        int anoProducao = 1995;
+        String idiomaOriginal = "Inglês";
+        String posterUrl = "posterUrl";
+        String bannerUrl = "bannerUrl";
+        boolean disponivel = true;
+        StatusObra status = StatusObra.ATIVO;
+        LocalDateTime dataInicioExibicao = LocalDateTime.of(2026, 10, 25, 8, 0);
+        LocalDateTime dataFimExibicao = LocalDateTime.of(2027, 10, 25, 17, 0);
+        ClassificacaoIndicativa classificacaoIndicativa = ClassificacaoIndicativa.LIVRE;
+        Set<NomeGenero> generos = Set.of(NomeGenero.ANIMACAO);
+
+        ObraAudiovisualRequest request = new ObraAudiovisualRequest(
+                titulo,
+                tituloOriginal,
+                diretor,
+                sinopse,
+                anoProducao,
+                idiomaOriginal,
+                posterUrl,
+                bannerUrl,
+                disponivel,
+                status,
+                dataInicioExibicao,
+                dataFimExibicao,
+                classificacaoIndicativa,
+                generos
+        );
+        Long id = 1L;
+        ObraAudiovisualResponse response = new ObraAudiovisualResponse(
+                id,
+                titulo,
+                tituloOriginal,
+                diretor,
+                sinopse,
+                anoProducao,
+                idiomaOriginal,
+                posterUrl,
+                bannerUrl,
+                dataInicioExibicao,
+                dataFimExibicao,
+                classificacaoIndicativa,
+                generos,
+                disponivel
+        );
+
+        when(obraService.atualizar(1L, request)).thenReturn(response);
+
+        mockMvc.perform(put("/api/obras/{id}", 1L)
+                        .with(user("usuario"))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.titulo").value(titulo));
+    }
+
     private ObraAudiovisualResponse obraAudiovisualResponsePadrao() {
         String titulo = "Toy Story";
         String tituloOriginal = "Toy Story";
