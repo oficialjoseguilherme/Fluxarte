@@ -328,6 +328,22 @@ class ObraAudiovisualControllerTest {
 
     }
 
+    @Test
+    void alterarDisponibilidade_comIdValido_deveRetornar200ComObraComDisponibilidadeAlterada() throws Exception {
+        Long id = 1L;
+        boolean disponivel = true;
+        when(obraService.alterarDisponibilidade(id, disponivel)).thenReturn(obraAudiovisualResponsePadrao());
+
+        mockMvc.perform(patch("/api/obras/{id}/disponibilidade", id)
+                        .with(user("usuario"))
+                        .with(csrf())
+                        .param("disponivel", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.exibivel").value(disponivel));
+    }
+
+
     private ObraAudiovisualResponse obraAudiovisualResponsePadrao() {
         Long id = 1L;
         String titulo = "Toy Story";
