@@ -18,11 +18,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -121,5 +124,126 @@ class ObraAudiovisualControllerTest {
                         generos.stream().map(Enum::name).toArray(String[]::new))))
                 .andExpect(jsonPath("$.exibivel").value(disponivel));
 
+    }
+
+    @Test
+    void listarTodas_deveRetornarTodasAsObras() throws Exception {
+        // ---------- Shrek ----------
+        String tituloShrek = "Shrek";
+        String tituloOriginalShrek = "Shrek";
+        String diretorShrek = "Andrew Adamson e Vicky Jenson";
+        String sinopseShrek = "Um ogro rabugento sai em missão para recuperar o seu pântano.";
+        int anoProducaoShrek = 2001;
+        String idiomaOriginalShrek = "Inglês";
+        String posterUrlShrek = "posterUrlShrek";
+        String bannerUrlShrek = "bannerUrlShrek";
+        boolean disponivelShrek = true;
+        StatusObra statusShrek = StatusObra.ATIVO;
+        LocalDateTime dataInicioExibicaoShrek = LocalDateTime.of(2026, 11, 1, 20, 0);
+        LocalDateTime dataFimExibicaoShrek = LocalDateTime.of(2027, 11, 1, 22, 0);
+        ClassificacaoIndicativa classificacaoIndicativaShrek = ClassificacaoIndicativa.LIVRE;
+        Set<NomeGenero> generosShrek = Set.of(NomeGenero.ANIMACAO);
+
+        Long idShrek = 2L;
+        ObraAudiovisualResponse responseShrek = new ObraAudiovisualResponse(
+                idShrek,
+                tituloShrek,
+                tituloOriginalShrek,
+                diretorShrek,
+                sinopseShrek,
+                anoProducaoShrek,
+                idiomaOriginalShrek,
+                posterUrlShrek,
+                bannerUrlShrek,
+                dataInicioExibicaoShrek,
+                dataFimExibicaoShrek,
+                classificacaoIndicativaShrek,
+                generosShrek,
+                disponivelShrek
+        );
+
+        String tituloDoc = "Free Solo";
+        String tituloOriginalDoc = "Free Solo";
+        String diretorDoc = "Elizabeth Chai Vasarhelyi e Jimmy Chin";
+        String sinopseDoc = "Um escalador tenta subir uma parede gigante sem corda e sem proteção.";
+        int anoProducaoDoc = 2018;
+        String idiomaOriginalDoc = "Inglês";
+        String posterUrlDoc = "posterUrlDoc";
+        String bannerUrlDoc = "bannerUrlDoc";
+        boolean disponivelDoc = true;
+        StatusObra statusDoc = StatusObra.ATIVO;
+        LocalDateTime dataInicioExibicaoDoc = LocalDateTime.of(2026, 12, 5, 19, 0);
+        LocalDateTime dataFimExibicaoDoc = LocalDateTime.of(2027, 12, 5, 21, 0);
+        ClassificacaoIndicativa classificacaoIndicativaDoc = ClassificacaoIndicativa.LIVRE;
+        Set<NomeGenero> generosDoc = Set.of(NomeGenero.DOCUMENTARIO);
+
+        Long idDoc = 3L;
+        ObraAudiovisualResponse responseDoc = new ObraAudiovisualResponse(
+                idDoc,
+                tituloDoc,
+                tituloOriginalDoc,
+                diretorDoc,
+                sinopseDoc,
+                anoProducaoDoc,
+                idiomaOriginalDoc,
+                posterUrlDoc,
+                bannerUrlDoc,
+                dataInicioExibicaoDoc,
+                dataFimExibicaoDoc,
+                classificacaoIndicativaDoc,
+                generosDoc,
+                disponivelDoc
+        );
+
+        when(obraService.listarTodas()).thenReturn(List.of(obraAudiovisualResponsePadrao(), responseShrek, responseDoc));
+
+        mockMvc.perform(get("/api/obras")
+                        .with(user("usuario")))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].titulo").value("Toy Story"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].titulo").value("Shrek"))
+                .andExpect(jsonPath("$[2].id").value(3))
+                .andExpect(jsonPath("$[2].titulo").value("Free Solo"));
+    }
+
+    private ObraAudiovisualResponse obraAudiovisualResponsePadrao() {
+        String titulo = "Toy Story";
+        String tituloOriginal = "Toy Story";
+        String diretor = "John Lasseter";
+        String sinopse = "Brinquedos ganham vida e olha no que deu.";
+        int anoProducao = 1995;
+        String idiomaOriginal = "Inglês";
+        String posterUrl = "posterUrl";
+        String bannerUrl = "bannerUrl";
+        boolean disponivel = true;
+        StatusObra status = StatusObra.ATIVO;
+        LocalDateTime dataInicioExibicao = LocalDateTime.of(2026, 10, 25, 8, 0);
+        LocalDateTime dataFimExibicao = LocalDateTime.of(2027, 10, 25, 17, 0);
+        ClassificacaoIndicativa classificacaoIndicativa = ClassificacaoIndicativa.LIVRE;
+        Set<NomeGenero> generos = Set.of(NomeGenero.ANIMACAO);
+
+        Long id = 1L;
+        ObraAudiovisualResponse response = new ObraAudiovisualResponse(
+                id,
+                titulo,
+                tituloOriginal,
+                diretor,
+                sinopse,
+                anoProducao,
+                idiomaOriginal,
+                posterUrl,
+                bannerUrl,
+                dataInicioExibicao,
+                dataFimExibicao,
+                classificacaoIndicativa,
+                generos,
+                disponivel
+        );
+
+        return response;
     }
 }
