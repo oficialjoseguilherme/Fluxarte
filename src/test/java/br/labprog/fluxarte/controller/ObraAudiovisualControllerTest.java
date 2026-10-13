@@ -343,6 +343,25 @@ class ObraAudiovisualControllerTest {
                 .andExpect(jsonPath("$.exibivel").value(disponivel));
     }
 
+    @Test
+    void adicionarGenero_comIdValido_deveRetornar200ComObraComNovoGenero() throws Exception {
+        Long id = 1L;
+        NomeGenero nomeGenero = NomeGenero.ANIMACAO;
+        when(obraService.adicionarGenero(id, nomeGenero)).thenReturn(obraAudiovisualResponsePadrao());
+
+        mockMvc.perform(post("/api/obras/{id}/generos", id)
+                        .with(user("usuario"))
+                        .with(csrf())
+                        .param("genero", "ANIMACAO")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.generos",
+                        containsInAnyOrder("ANIMACAO")));
+
+        verify(obraService).adicionarGenero(id, nomeGenero);
+    }
+
 
     private ObraAudiovisualResponse obraAudiovisualResponsePadrao() {
         Long id = 1L;
