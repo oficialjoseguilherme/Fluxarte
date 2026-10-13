@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.labprog.fluxarte.exceptions.ConflitoException;
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -81,23 +82,34 @@ class UsuarioServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    void deveAtualizarPerfilRetornandoResponse() {
+        Usuario usuario = salvarUsuario("atualizar@teste.com");
+
+        UsuarioResponse atualizado = service.atualizarPerfil(usuario.getId(), "Nome Modificado", true);
+        flushAndClear();
+
+        assertEquals("Nome Modificado", atualizado.nomeExibicao());
+        assertTrue(atualizado.aceitaConteudoAdulto());
+    }
+
+    @Test
     void deveGerarErroAoCadastrarSemNome() {
         UsuarioCadastroRequest semNome = new UsuarioCadastroRequest(
                 null, "sem-nome@teste.com", "senha", LocalDate.of(2000, 1, 1), null, false);
-        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semNome));
+        assertThrows(RegraNegocioException.class, () -> service.cadastrar(semNome));
     }
 
     @Test
     void deveGerarErroAoCadastrarSemEmail() {
         UsuarioCadastroRequest semEmail = new UsuarioCadastroRequest(
                 "Sem email", null, "senha", LocalDate.of(2000, 1, 1), null, false);
-        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semEmail));
+        assertThrows(RegraNegocioException.class, () -> service.cadastrar(semEmail));
     }
 
     @Test
     void deveGerarErroAoCadastrarSemSenha() {
         UsuarioCadastroRequest semSenha = new UsuarioCadastroRequest(
                 "Sem senha", "sem-senha@teste.com", null, LocalDate.of(2000, 1, 1), null, false);
-        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(semSenha));
+        assertThrows(RegraNegocioException.class, () -> service.cadastrar(semSenha));
     }
 }

@@ -63,7 +63,7 @@ class ProgressoVisualizacaoServiceTest extends AbstractServiceTest {
         ObraAudiovisual obra = salvarObra("Duração");
         MidiaStreaming midia = salvarMidia(obra, TipoMidia.PRINCIPAL);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(RegraNegocioException.class,
                 () -> service.salvarProgresso(usuario.getId(), null));
         assertEquals("Posicao nao pode ser maior que a duracao da midia",
                 assertThrows(RegraNegocioException.class,

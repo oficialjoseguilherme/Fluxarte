@@ -118,9 +118,9 @@ class EventoObraServiceTest extends AbstractServiceTest {
         assertEquals("Essa obra ja faz parte da programacao do evento",
                 assertThrows(ConflitoException.class,
                         () -> service.adicionarObra(evento.getId(), request)).getMessage());
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(RegraNegocioException.class,
                 () -> service.adicionarObra(evento.getId(), null));
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(RegraNegocioException.class,
                 () -> service.atualizar(1L, null));
     }
 

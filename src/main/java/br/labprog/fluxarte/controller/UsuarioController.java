@@ -29,10 +29,10 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponse> atualizarMe(Authentication authentication,
                                                        @RequestBody AtualizarPerfilRequest request) {
         UUID usuarioId = (UUID) authentication.getPrincipal();
-        Usuario usuario = usuarioService.atualizarPerfil(
+        UsuarioResponse response = usuarioService.atualizarPerfil(
                 usuarioId, request.nomeExibicao(), request.aceitaConteudoAdulto()
         );
-        return ResponseEntity.ok(mapearParaResponseCompleto(usuario));
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/me")

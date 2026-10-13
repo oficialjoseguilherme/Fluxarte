@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +28,7 @@ public class MidiaStreamingService {
     @Transactional
     public MidiaStreamingResponse cadastrar(MidiaStreamingRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados da midia sao obrigatorios");
+            throw new RegraNegocioException("Dados da midia sao obrigatorios");
         }
 
         ObraAudiovisual obra = obraService.buscarEntidadePorId(request.obraId());
@@ -43,7 +44,7 @@ public class MidiaStreamingService {
     @Transactional
     public MidiaStreamingResponse atualizar(Long id, MidiaStreamingRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados da midia sao obrigatorios");
+            throw new RegraNegocioException("Dados da midia sao obrigatorios");
         }
 
         MidiaStreaming midia = buscarEntidadePorId(id);

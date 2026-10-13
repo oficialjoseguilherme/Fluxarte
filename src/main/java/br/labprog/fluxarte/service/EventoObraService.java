@@ -29,7 +29,7 @@ public class EventoObraService {
     @Transactional
     public EventoObraResponse adicionarObra(Long eventoId, EventoObraRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados da obra do evento sao obrigatorios");
+            throw new RegraNegocioException("Dados da obra do evento sao obrigatorios");
         }
         if (eventoObraRepository.existsByEventoIdAndObraId(eventoId, request.obraId())) {
             throw new ConflitoException("Essa obra ja faz parte da programacao do evento");
@@ -49,7 +49,7 @@ public class EventoObraService {
     @Transactional
     public EventoObraResponse atualizar(Long id, EventoObraRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados da obra do evento sao obrigatorios");
+            throw new RegraNegocioException("Dados da obra do evento sao obrigatorios");
         }
 
         EventoObra eventoObra = buscarEntidadePorId(id);

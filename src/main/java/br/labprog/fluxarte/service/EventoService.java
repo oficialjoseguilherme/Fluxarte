@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,7 +25,7 @@ public class EventoService {
     @Transactional
     public EventoResponse cadastrar(EventoRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados do evento sao obrigatorios");
+            throw new RegraNegocioException("Dados do evento sao obrigatorios");
         }
         Evento evento = eventoMapper.toEntity(request);
         return eventoMapper.toResponse(eventoRepository.save(evento));
@@ -33,7 +34,7 @@ public class EventoService {
     @Transactional
     public EventoResponse atualizar(Long id, EventoRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados do evento sao obrigatorios");
+            throw new RegraNegocioException("Dados do evento sao obrigatorios");
         }
         Evento evento = buscarEntidadePorId(id);
         eventoMapper.updateEntityFromRequest(request, evento);

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -109,7 +110,7 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
     @Test
     void deveValidarDadosObrigatoriosEJanela() {
         assertEquals("Dados da obra sao obrigatorios",
-                assertThrows(IllegalArgumentException.class, () -> service.cadastrar(null)).getMessage());
+                assertThrows(RegraNegocioException.class, () -> service.cadastrar(null)).getMessage());
     }
 
     @Test
@@ -131,11 +132,16 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
     void deveAlterarStatusEDisponibilidade() {
         ObraAudiovisual obra = salvarObra("Alterações");
 
-        assertEquals(StatusObra.INATIVO,
-                service.alterarStatus(obra.getId(), StatusObra.INATIVO).getStatus());
-        assertFalse(service.alterarDisponibilidade(obra.getId(), false).getDisponivel());
+        ObraAudiovisualResponse aposStatus = service.alterarStatus(obra.getId(), StatusObra.INATIVO);
+        assertFalse(aposStatus.exibivel());
+        assertEquals(StatusObra.INATIVO, service.buscarEntidadePorId(obra.getId()).getStatus());
+
+        ObraAudiovisualResponse aposDisponibilidade = service.alterarDisponibilidade(obra.getId(), false);
+        assertFalse(aposDisponibilidade.exibivel());
+        assertFalse(service.buscarEntidadePorId(obra.getId()).getDisponivel());
+
         assertEquals("Status da obra e obrigatorio",
-                assertThrows(IllegalArgumentException.class,
+                assertThrows(RegraNegocioException.class,
                         () -> service.alterarStatus(obra.getId(), null)).getMessage());
     }
 
@@ -150,9 +156,9 @@ class ObraAudiovisualServiceTest extends AbstractServiceTest {
 
         assertEquals(1, generoRepository.count());
         assertEquals(1, service.buscarPorId(primeira.getId()).generos().size());
-        assertTrue(service.removerGenero(primeira.getId(), NomeGenero.DOCUMENTARIO).getGeneros().isEmpty());
-        assertThrows(IllegalArgumentException.class, () -> service.adicionarGenero(primeira.getId(), null));
-        assertThrows(IllegalArgumentException.class, () -> service.removerGenero(primeira.getId(), null));
+        assertTrue(service.removerGenero(primeira.getId(), NomeGenero.DOCUMENTARIO).generos().isEmpty());
+        assertThrows(RegraNegocioException.class, () -> service.adicionarGenero(primeira.getId(), null));
+        assertThrows(RegraNegocioException.class, () -> service.removerGenero(primeira.getId(), null));
     }
 
     @Test

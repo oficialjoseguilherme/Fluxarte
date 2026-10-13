@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import java.time.LocalDate;
 
@@ -54,8 +55,8 @@ class EventoServiceTest extends AbstractServiceTest {
 
     @Test
     void deveRejeitarRequestNulo() {
-        assertThrows(IllegalArgumentException.class, () -> service.cadastrar(null));
-        assertThrows(IllegalArgumentException.class, () -> service.atualizar(1L, null));
+        assertThrows(RegraNegocioException.class, () -> service.cadastrar(null));
+        assertThrows(RegraNegocioException.class, () -> service.atualizar(1L, null));
     }
 
     @Test

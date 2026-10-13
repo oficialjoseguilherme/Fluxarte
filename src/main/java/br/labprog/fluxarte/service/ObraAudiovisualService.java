@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +30,7 @@ public class ObraAudiovisualService {
     @Transactional
     public ObraAudiovisualResponse cadastrar(ObraAudiovisualRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados da obra sao obrigatorios");
+            throw new RegraNegocioException("Dados da obra sao obrigatorios");
         }
 
         LocalDateTime agora = LocalDateTime.now();
@@ -44,7 +45,7 @@ public class ObraAudiovisualService {
     @Transactional
     public ObraAudiovisualResponse atualizar(Long id, ObraAudiovisualRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados da obra sao obrigatorios");
+            throw new RegraNegocioException("Dados da obra sao obrigatorios");
         }
 
         ObraAudiovisual obra = buscarEntidadePorId(id);
@@ -93,31 +94,31 @@ public class ObraAudiovisualService {
     }
 
     @Transactional
-    public ObraAudiovisual alterarStatus(Long id, StatusObra novoStatus) {
+    public ObraAudiovisualResponse alterarStatus(Long id, StatusObra novoStatus) {
         if (novoStatus == null) {
-            throw new IllegalArgumentException("Status da obra e obrigatorio");
+            throw new RegraNegocioException("Status da obra e obrigatorio");
         }
 
         ObraAudiovisual obra = buscarEntidadePorId(id);
         obra.setStatus(novoStatus);
         obra.setAtualizadoEm(LocalDateTime.now());
 
-        return obraRepository.save(obra);
+        return obraMapper.toResponse(obraRepository.save(obra));
     }
 
     @Transactional
-    public ObraAudiovisual alterarDisponibilidade(Long id, boolean disponivel) {
+    public ObraAudiovisualResponse alterarDisponibilidade(Long id, boolean disponivel) {
         ObraAudiovisual obra = buscarEntidadePorId(id);
         obra.setDisponivel(disponivel);
         obra.setAtualizadoEm(LocalDateTime.now());
 
-        return obraRepository.save(obra);
+        return obraMapper.toResponse(obraRepository.save(obra));
     }
 
     @Transactional
-    public ObraAudiovisual adicionarGenero(Long obraId, NomeGenero nome) {
+    public ObraAudiovisualResponse adicionarGenero(Long obraId, NomeGenero nome) {
         if (nome == null) {
-            throw new IllegalArgumentException("Nome do genero e obrigatorio");
+            throw new RegraNegocioException("Nome do genero e obrigatorio");
         }
 
         ObraAudiovisual obra = buscarEntidadePorId(obraId);
@@ -125,7 +126,7 @@ public class ObraAudiovisualService {
         obra.getGeneros().add(genero);
         obra.setAtualizadoEm(LocalDateTime.now());
 
-        return obraRepository.save(obra);
+        return obraMapper.toResponse(obraRepository.save(obra));
     }
 
     private GeneroObra buscarOuCriarGenero(NomeGenero nome) {
@@ -134,16 +135,16 @@ public class ObraAudiovisualService {
     }
 
     @Transactional
-    public ObraAudiovisual removerGenero(Long obraId, NomeGenero nome) {
+    public ObraAudiovisualResponse removerGenero(Long obraId, NomeGenero nome) {
         if (nome == null) {
-            throw new IllegalArgumentException("Nome do genero e obrigatorio");
+            throw new RegraNegocioException("Nome do genero e obrigatorio");
         }
 
         ObraAudiovisual obra = buscarEntidadePorId(obraId);
         obra.getGeneros().removeIf(genero -> genero.getNome() == nome);
         obra.setAtualizadoEm(LocalDateTime.now());
 
-        return obraRepository.save(obra);
+        return obraMapper.toResponse(obraRepository.save(obra));
     }
 
     @Transactional

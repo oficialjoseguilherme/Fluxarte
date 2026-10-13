@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +82,7 @@ class AtividadeUsuarioServiceTest extends AbstractServiceTest {
     @Test
     void deveRejeitarRequestNulo() {
         Usuario usuario = salvarUsuario("atividade-invalida@teste.com");
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(RegraNegocioException.class,
                 () -> service.registrar(usuario.getId(), null));
     }
 

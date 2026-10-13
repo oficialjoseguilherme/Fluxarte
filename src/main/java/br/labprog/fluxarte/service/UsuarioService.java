@@ -4,6 +4,7 @@ import br.labprog.fluxarte.dto.request.UsuarioCadastroRequest;
 import br.labprog.fluxarte.dto.response.UsuarioResponse;
 import br.labprog.fluxarte.exceptions.ConflitoException;
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 import br.labprog.fluxarte.mapper.UsuarioMapper;
 import br.labprog.fluxarte.model.Usuario;
 import br.labprog.fluxarte.repository.UsuarioRepository;
@@ -27,16 +28,16 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponse cadastrar(UsuarioCadastroRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados de cadastro sao obrigatorios");
+            throw new RegraNegocioException("Dados de cadastro sao obrigatorios");
         }
         if (request.nome() == null || request.nome().isBlank()) {
-            throw new IllegalArgumentException("O nome não pode ser nulo ou em branco.");
+            throw new RegraNegocioException("O nome não pode ser nulo ou em branco.");
         }
         if (request.email() == null || request.email().isBlank()) {
-            throw new IllegalArgumentException("O email não pode ser nulo ou em branco.");
+            throw new RegraNegocioException("O email não pode ser nulo ou em branco.");
         }
         if (request.senha() == null || request.senha().isBlank()) {
-            throw new IllegalArgumentException("A senha não pode ser nula ou em branco");
+            throw new RegraNegocioException("A senha não pode ser nula ou em branco");
         }
 
         if (usuarioRepository.existsByEmail(request.email())) {
@@ -71,7 +72,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario atualizarPerfil(UUID id, String nomeExibicao, Boolean aceitaConteudoAdulto) {
+    public UsuarioResponse atualizarPerfil(UUID id, String nomeExibicao, Boolean aceitaConteudoAdulto) {
         Usuario usuario = buscarEntidadePorId(id);
 
         if (nomeExibicao != null && !nomeExibicao.isBlank()) {
@@ -81,7 +82,8 @@ public class UsuarioService {
             usuario.setAceitaConteudoAdulto(aceitaConteudoAdulto);
         }
 
-        return usuarioRepository.save(usuario);
+        Usuario salvo = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(salvo);
     }
 
     @Transactional

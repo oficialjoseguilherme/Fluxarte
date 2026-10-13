@@ -10,6 +10,8 @@ import br.labprog.fluxarte.repository.HistoricoVisualizacaoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +66,7 @@ class HistoricoVisualizacaoServiceTest extends AbstractServiceTest {
 
     @Test
     void deveRejeitarRequestNulo() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(RegraNegocioException.class,
                 () -> service.registrar(UUID.randomUUID(), null));
     }
 

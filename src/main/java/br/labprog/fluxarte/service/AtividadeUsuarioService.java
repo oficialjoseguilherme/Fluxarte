@@ -2,6 +2,7 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.AtividadeUsuarioRequest;
 import br.labprog.fluxarte.dto.response.AtividadeUsuarioResponse;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 import br.labprog.fluxarte.mapper.AtividadeUsuarioMapper;
 import br.labprog.fluxarte.model.AtividadeUsuario;
 import br.labprog.fluxarte.model.Usuario;
@@ -26,7 +27,7 @@ public class AtividadeUsuarioService {
     @Transactional
     public AtividadeUsuarioResponse registrar(UUID usuarioId, AtividadeUsuarioRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados da atividade sao obrigatorios");
+            throw new RegraNegocioException("Dados da atividade sao obrigatorios");
         }
         Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
 

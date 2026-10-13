@@ -2,6 +2,7 @@ package br.labprog.fluxarte.service;
 
 import br.labprog.fluxarte.dto.request.HistoricoVisualizacaoRequest;
 import br.labprog.fluxarte.dto.response.HistoricoVisualizacaoResponse;
+import br.labprog.fluxarte.exceptions.RegraNegocioException;
 import br.labprog.fluxarte.mapper.HistoricoVisualizacaoMapper;
 import br.labprog.fluxarte.model.HistoricoVisualizacao;
 import br.labprog.fluxarte.model.MidiaStreaming;
@@ -27,7 +28,7 @@ public class HistoricoVisualizacaoService {
     @Transactional
     public HistoricoVisualizacaoResponse registrar(UUID usuarioId, HistoricoVisualizacaoRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados de historico sao obrigatorios");
+            throw new RegraNegocioException("Dados de historico sao obrigatorios");
         }
         Usuario usuario = usuarioService.buscarEntidadePorId(usuarioId);
         MidiaStreaming midia = midiaService.buscarEntidadePorId(request.midiaId());

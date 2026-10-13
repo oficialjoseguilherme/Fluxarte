@@ -29,7 +29,7 @@ public class ProgressoVisualizacaoService {
     @Transactional
     public Optional<ProgressoVisualizacaoResponse> salvarProgresso(UUID usuarioId, ProgressoVisualizacaoRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Dados de progresso sao obrigatorios");
+            throw new RegraNegocioException("Dados de progresso sao obrigatorios");
         }
 
         MidiaStreaming midia = midiaService.buscarEntidadePorId(request.midiaId());
