@@ -311,7 +311,25 @@ class ObraAudiovisualControllerTest {
                 .andExpect(jsonPath("$.titulo").value(titulo));
     }
 
+    @Test
+    void alterarStatus_comIdValido_deveRetornar200ComObraComStatusAlterado() throws Exception {
+        when(obraService.alterarStatus(1L, StatusObra.ATIVO)).thenReturn(obraAudiovisualResponsePadrao());
+
+        mockMvc.perform(patch("/api/obras/{id}/status", 1L)
+                        .with(user("usuario"))
+                        .with(csrf())
+                        .param("status", "ATIVO"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.titulo").value("Toy Story"));
+
+        verify(obraService).alterarStatus(1L, StatusObra.ATIVO);
+
+
+    }
+
     private ObraAudiovisualResponse obraAudiovisualResponsePadrao() {
+        Long id = 1L;
         String titulo = "Toy Story";
         String tituloOriginal = "Toy Story";
         String diretor = "John Lasseter";
@@ -327,7 +345,6 @@ class ObraAudiovisualControllerTest {
         ClassificacaoIndicativa classificacaoIndicativa = ClassificacaoIndicativa.LIVRE;
         Set<NomeGenero> generos = Set.of(NomeGenero.ANIMACAO);
 
-        Long id = 1L;
         ObraAudiovisualResponse response = new ObraAudiovisualResponse(
                 id,
                 titulo,
