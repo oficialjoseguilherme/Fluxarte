@@ -1,4 +1,15 @@
+//para o loginpage
+import type { TokenResponse } from '../apis/authapi'
+
+
+
+// para o cadastropage
 export type AppAction =
+  | { type: 'LOGIN_INICIADO' }
+  | { type: 'LOGIN_SUCESSO'; tokens: TokenResponse }
+  | { type: 'LOGIN_FALHOU'; mensagem: string }
+  | { type: 'LOGIN_RESETADO' }
+
   | { type: 'CADASTRO_INICIADO' }
   | { type: 'CADASTRO_FALHOU'; mensagem: string }
   | { type: 'CADASTRO_SUCESSO' }

@@ -32,6 +32,7 @@ export default function CadastroPage() {
     })
   }
 }, [sucesso, navigate])
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const dados = new FormData(event.currentTarget)
