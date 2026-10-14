@@ -1,5 +1,5 @@
 import { dispatcher } from '../dispatchers/dispatcher'
-import type { Obra } from '../types/obra'
+import type { Obra } from '../types/catalog'
 
 interface CatalogoState {
   carregando: boolean

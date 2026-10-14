@@ -1,5 +1,5 @@
 //para o catalogo
-import type { Obra } from '../types/obra'
+import type { Obra } from '../types/catalog'
 
 //para o loginpage
 import type { TokenResponse } from '../apis/authapi'

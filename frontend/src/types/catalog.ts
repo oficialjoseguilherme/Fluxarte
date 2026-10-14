@@ -14,3 +14,9 @@ export interface Obra {
   generos: string[]
   exibivel: boolean
 }
+
+export interface CatalogSection {
+  slug: string;
+  title: string;
+  items: Obra[];
+}

@@ -1,4 +1,4 @@
-import type { Obra } from '../types/obra'
+import type { Obra } from '../types/catalog'
 
 export async function listarObras(
   accessToken: string,

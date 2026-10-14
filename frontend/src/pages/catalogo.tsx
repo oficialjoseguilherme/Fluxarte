@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router'
 import { carregarCatalogo } from '../actions/catalogoActions'
 import { catalogoStore } from '../stores/catalogoStore'
 import { authStore } from '../stores/authStore'
+import { ObraDestaque } from '../components/obraDestaque'
 
 export default function CatalogoPage() {
   const { tokens } = useSyncExternalStore(
@@ -26,10 +27,11 @@ export default function CatalogoPage() {
   if (!tokens) {
     return <Navigate to="/login" replace />
   }
-
+  const obra = obras.find((obra) => obra.exibivel)
   return (
     <main className="min-h-screen w-full bg-zinc-950 px-6 py-8 text-white">
       <h1 className="mb-8 text-3xl font-bold">Catálogo Fluxarte</h1>
+      {obra ? <ObraDestaque item={obra} /> : <h1 className="px-4 pb-6 pt-28 text-3xl font-bold sm:px-8">Catálogo</h1>}
 
       {carregando && (
         <p role="status">Carregando catálogo…</p>
