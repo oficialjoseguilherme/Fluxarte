@@ -1,4 +1,47 @@
-# React + TypeScript + Vite
+# Frontend Fluxarte
+
+## Desenvolvimento com Docker
+
+Com o Docker Desktop iniciado, execute na raiz do repositório:
+
+```powershell
+docker compose up --build -d
+```
+
+Acesse http://localhost:5173. O Compose inicia o frontend, a API e o PostgreSQL.
+As chamadas para `/api` são encaminhadas ao backend em `http://app:8080`.
+Alterações nos arquivos locais são refletidas pelo Vite, sem reconstruir a imagem.
+
+Para acompanhar os logs:
+
+```powershell
+docker compose logs -f frontend app
+```
+
+Para parar os containers mantendo os dados:
+
+```powershell
+docker compose down
+```
+
+Após alterar as dependências, atualize o volume de dependências e a imagem:
+
+```powershell
+docker compose build frontend
+docker compose run --rm --no-deps frontend npm ci --include=dev
+docker compose up -d frontend
+```
+
+## Desenvolvimento sem container do frontend
+
+Com a API do Docker disponível em `http://localhost:8081`, execute nesta pasta:
+
+```powershell
+npm.cmd ci --include=dev
+npm.cmd run dev
+```
+
+## Template React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
