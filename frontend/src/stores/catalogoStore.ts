@@ -5,12 +5,14 @@ interface CatalogoState {
   carregando: boolean
   erro: string | null
   obras: Obra[]
+  destaque: Obra | null
 }
 
 let estado: CatalogoState = {
   carregando: false,
   erro: null,
   obras: [],
+  destaque: null,
 }
 
 const listeners = new Set<() => void>()
@@ -22,6 +24,7 @@ dispatcher.register((action) => {
         carregando: true,
         erro: null,
         obras: [],
+        destaque: null,
       }
       break
 
@@ -30,6 +33,7 @@ dispatcher.register((action) => {
         carregando: false,
         erro: null,
         obras: action.obras,
+        destaque: action.destaque,
       }
       break
 
@@ -38,6 +42,7 @@ dispatcher.register((action) => {
         carregando: false,
         erro: action.mensagem,
         obras: [],
+        destaque: null,
       }
       break
 

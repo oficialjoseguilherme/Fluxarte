@@ -1,0 +1,10 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import ObraImagem from '../components/obraImagem';
+import { poster } from '../types/example';
+const meta = { component: ObraImagem, tags: ['autodocs'], args: { src: poster, alt: 'Pôster da obra de exemplo', className: 'h-80 w-56 rounded object-cover' } } satisfies Meta<typeof ObraImagem>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export const Padrao: Story = {};
+export const SemImagem: Story = { args: { src: null } };
+export const ImagemInvalida: Story = { args: { src: 'data:image/png;base64,invalid' } };
+export const Decorativa: Story = { args: { src: null, alt: '' } };

@@ -1,0 +1,10 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ObraDestaque } from '../components/obraDestaque';
+import { obra } from '../types/example';
+const meta = { component: ObraDestaque, tags: ['autodocs'], args: { item: obra }, parameters: { layout: 'fullscreen' } } satisfies Meta<typeof ObraDestaque>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export const Padrao: Story = {};
+export const SemImagem: Story = { args: { item: { ...obra, posterUrl: null } } };
+export const SemInformacoesOpcionais: Story = { args: { item: { ...obra, sinopse: null, duracao: null, classificacaoIndicativa: null, detalhesUrl: null, generos: [] } } };
+export const SinopseLonga: Story = { args: { item: { ...obra, sinopse: 'Uma jornada pelas paisagens e histórias do Brasil. '.repeat(10) } } };

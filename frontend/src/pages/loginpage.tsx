@@ -3,8 +3,9 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { entrar, resetarLogin } from '../actions/authActions'
 import { authStore } from '../stores/authStore'
-
-
+import Button from '../components/button'
+import FormField from '../components/formField'
+import AuthLayout from '../components/authLayout'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -43,48 +44,30 @@ export default function LoginPage() {
 
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-white">
-      <div className="max-w-md w-[448px]">
+    <AuthLayout width="login">
         <h1 className="text-3xl font-bold mb-4">Informe seus dados para <br /> entrar</h1>
         <p className="text-sm text-gray-400 mt-4">
           Ou crie uma conta.
         </p>
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4" >
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-              Email
-            </label>
-            <input
+          <FormField wrapperClassName="mb-4" id="email" label="Email"
               type="email"
-              id="email"
               name="email"
-              autoComplete="example@example.com"
+              autoComplete="email"
               required
-              className="w-full bg-zinc-800 border border-zinc-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
-              Password
-            </label>
-            <input
+              placeholder="seu@email.com"
+             />
+          <FormField wrapperClassName="mb-4" id="password" label="Senha"
               type="password"
-              id="password"
               name="senha"
               autoComplete="current-password"
               required
-              className="w-full bg-zinc-800 border border-zinc-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-            />
-          </div>
+              placeholder="Sua senha"
+             />
           {erro && ( <p role="alert" className="mb-4 text-sm text-red-400"> {erro} </p> )}
-          <button
-            type="submit"
-            disabled={enviando}
-            className="w-full rounded-md bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50">
+          <Button type="submit" size="form" fullWidth disabled={enviando}>
             {enviando ? 'Entrando…' : 'Entrar'}
-          </button>
+          </Button>
         </form>
         <p className="text-sm text-gray-400 mt-4">
           Não tem uma conta?{' '}
@@ -92,7 +75,6 @@ export default function LoginPage() {
             Registre-se
           </Link>
         </p>
-      </div>
-    </main>
+      </AuthLayout>
   );
 }

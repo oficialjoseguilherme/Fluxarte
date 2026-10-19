@@ -1,0 +1,10 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import ObraRow from '../components/obraRow';
+import { section } from '../types/example';
+const meta = { component: ObraRow, tags: ['autodocs'], args: { section }, parameters: { layout: 'fullscreen' } } satisfies Meta<typeof ObraRow>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export const Padrao: Story = {};
+export const PoucasObras: Story = { args: { section: { ...section, obras: section.obras.slice(0, 2) } } };
+export const UmaObra: Story = { args: { section: { ...section, obras: section.obras.slice(0, 1) } } };
+export const Vazia: Story = { args: { section: { ...section, obras: [] } } };
