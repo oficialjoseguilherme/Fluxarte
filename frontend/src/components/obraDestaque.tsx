@@ -4,7 +4,7 @@ import type { Obra } from '../types/catalog';
 
 export function ObraDestaque({ item }: { item: Obra }) {
   const [failedSource, setFailedSource] = useState<string | null>(null);
-  const src = item.bannerUrl
+  const src  = item.bannerUrl ?? item.posterUrl;
   const year = item.anoProducao;
   const actionClass = 'inline-flex items-center gap-2 rounded px-5 py-3 font-bold transition-opacity hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white';
   return (
