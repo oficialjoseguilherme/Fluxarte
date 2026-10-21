@@ -4,6 +4,25 @@ html, body {
   width: 100%;
 }
 
+/* Barra de rolagem escura e fina; scrollbar-color é herdado, então vale também para o modal */
+html {
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: #4d4d4d transparent;
+}
+
+/* Safari ainda não suporta scrollbar-color */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #4d4d4d; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #6b6b6b; }
+}
+
+@keyframes obra-modal-entrada {
+  from { opacity: 0; transform: scale(0.95); }
+}
+
 #root {
     width: 100%;
     min-height: 100vh;

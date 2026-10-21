@@ -20,6 +20,7 @@ export function ObraDestaque({ item }: { item: Obra }) {
         <p className="mt-4 max-w-xl text-base text-neutral-300 sm:text-xl">{item.sinopse ? (item.sinopse.length > 250 ? `${item.sinopse.slice(0, 247)}…` : item.sinopse) : 'Sinopse indisponível.'}</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link to={`/assistir/${item.id}`} className={`${actionClass} bg-white text-black`}>▶ Assistir</Link>
+          <Link to={{ search: `?obra=${item.id}` }} state={{ abertoPeloCatalogo: true }} className={`${actionClass} bg-neutral-500/70 text-white`}>ⓘ Mais informações</Link>
           <Link to={`/meu-uira/add/${item.id}`} className={`${actionClass} bg-neutral-700 text-white`}>+ Minha lista</Link>
         </div>
         {!!item.generos.length && <p className="mt-4 max-w-xl text-sm text-neutral-400"><strong>Gêneros: </strong>{item.generos.join(', ')}</p>}
