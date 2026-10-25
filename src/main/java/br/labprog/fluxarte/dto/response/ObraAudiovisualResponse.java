@@ -16,9 +16,30 @@ public record ObraAudiovisualResponse(
     String idiomaOriginal,
     String posterUrl,
     String bannerUrl,
+    String detalhesUrl,
     LocalDateTime dataInicioExibicao,
     LocalDateTime dataFimExibicao,
     ClassificacaoIndicativa classificacaoIndicativa,
     Set<NomeGenero> generos,
     Boolean exibivel
-) {}
+) {
+    public ObraAudiovisualResponse(
+            Long id,
+            String titulo,
+            String tituloOriginal,
+            String diretor,
+            String sinopse,
+            Integer anoProducao,
+            String idiomaOriginal,
+            String posterUrl,
+            String bannerUrl,
+            LocalDateTime dataInicioExibicao,
+            LocalDateTime dataFimExibicao,
+            ClassificacaoIndicativa classificacaoIndicativa,
+            Set<NomeGenero> generos,
+            Boolean exibivel) {
+        this(id, titulo, tituloOriginal, diretor, sinopse, anoProducao, idiomaOriginal,
+                posterUrl, bannerUrl, null, dataInicioExibicao, dataFimExibicao,
+                classificacaoIndicativa, generos, exibivel);
+    }
+}

@@ -28,6 +28,7 @@ public record ObraAudiovisualRequest(
 
         String posterUrl,
         String bannerUrl,
+        String detalhesUrl,
 
         Boolean disponivel,
 
@@ -39,6 +40,27 @@ public record ObraAudiovisualRequest(
         @NotNull(message = "A classificação indicativa é obrigatória") ClassificacaoIndicativa classificacaoIndicativa,
 
         Set<NomeGenero> generos) {
+
+    public ObraAudiovisualRequest(
+            String titulo,
+            String tituloOriginal,
+            String diretor,
+            String sinopse,
+            Integer anoProducao,
+            String idiomaOriginal,
+            String posterUrl,
+            String bannerUrl,
+            Boolean disponivel,
+            StatusObra status,
+            LocalDateTime dataInicioExibicao,
+            LocalDateTime dataFimExibicao,
+            ClassificacaoIndicativa classificacaoIndicativa,
+            Set<NomeGenero> generos) {
+        this(titulo, tituloOriginal, diretor, sinopse, anoProducao, idiomaOriginal,
+                posterUrl, bannerUrl, null, disponivel, status, dataInicioExibicao,
+                dataFimExibicao, classificacaoIndicativa, generos);
+    }
+
     public ObraAudiovisualRequest {
         if (titulo != null)
             titulo = titulo.trim();
@@ -56,6 +78,7 @@ public record ObraAudiovisualRequest(
             return true;
         return anoProducao <= Year.now().getValue();
     }
+
     @AssertTrue(message = "A data final de exibição não pode ser anterior à data de início")
     public boolean isJanelaExibicaoValida() {
         if (dataInicioExibicao != null && dataFimExibicao != null) {

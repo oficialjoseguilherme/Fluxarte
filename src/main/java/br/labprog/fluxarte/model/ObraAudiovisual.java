@@ -24,7 +24,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"generos", "midias", "eventoObras",
         "progressos", "historicos", "recomendacoes"})
-
 public class ObraAudiovisual {
 
     @Id
@@ -37,7 +36,6 @@ public class ObraAudiovisual {
     @Column(name = "titulo_original", length = 255)
     private String tituloOriginal;
 
-    //lembrando que a busca pode ser feita pelo diretor
     @Column(length = 200)
     private String diretor;
 
@@ -56,6 +54,9 @@ public class ObraAudiovisual {
     @Column(name = "banner_url")
     private String bannerUrl;
 
+    @Column(name = "detalhes_url", length = 500)
+    private String detalhesUrl;
+
     @Column(nullable = false)
     private Boolean disponivel;
 
@@ -63,11 +64,9 @@ public class ObraAudiovisual {
     @Column(nullable = false, length = 20)
     private StatusObra status;
 
-    // se null, não há restrição de inicio
     @Column(name = "data_inicio_exibicao")
     private LocalDateTime dataInicioExibicao;
 
-    // se null, a obra é permanente
     @Column(name = "data_fim_exibicao")
     private LocalDateTime dataFimExibicao;
 
@@ -112,7 +111,6 @@ public class ObraAudiovisual {
     @Builder.Default
     private List<Recomendacao> recomendacoes = new ArrayList<>();
 
-    //obra está no período de exibição?
     @Transient
     public boolean isExibivelEm(LocalDateTime momento) {
         if (dataInicioExibicao != null && momento.isBefore(dataInicioExibicao)) {
