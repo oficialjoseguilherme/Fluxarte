@@ -14,5 +14,11 @@ public enum NomeGenero {
     ROMANCE,
     INFANTIL,
     POLICIAL,
-    INSTITUCIONAL
+    INSTITUCIONAL,
+    HISTORICO,
+    MUSICAL,
+    SUSPENSE,
+    FANTASIA,
+    BIOGRAFIA,
+    SCI_FI
 }
