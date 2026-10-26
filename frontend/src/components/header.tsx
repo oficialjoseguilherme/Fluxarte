@@ -12,7 +12,9 @@ export default function Header({ campoBusca }: { campoBusca?: ReactNode }) {
   return (
     <header className={`fixed inset-x-0 top-0 z-[999] h-[68px] items-center gap-x-5 px-[30px] text-white transition-[background-color] duration-[400ms] ease-[ease] max-[760px]:px-[15px] ${campoBusca ? 'grid grid-cols-[minmax(0,1fr)_280px_auto] max-[760px]:h-[120px] max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:grid-rows-[68px_52px]' : 'flex justify-between'} ${scrolled ? 'bg-[#141414]' : 'bg-[linear-gradient(to_bottom,rgba(0,0,0,0.75),transparent)]'}`}>
       <div className="flex min-w-0 flex-1 items-center gap-6">
-        <NavLink to="/catalogo" aria-label="Fluxarte — início" className="flex shrink-0 text-2xl font-black tracking-tight text-[#e50914] max-[760px]:text-xl">FLUXARTE</NavLink>
+        <NavLink to="/catalogo" aria-label="Uirá — início" className="flex shrink-0 items-center rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+          <img src="/uira-logo.png" alt="Uirá" width={94} height={52} className="h-[52px] w-[94px] object-contain object-center max-[760px]:h-[44px] max-[760px]:w-[80px]" />
+        </NavLink>
         <nav aria-label="Principal" className="min-w-0 overflow-hidden max-[1100px]:hidden">
           <ul className="m-0 flex list-none items-center gap-1 p-0">
             {NAV_ITEMS.map(item => <li key={item.path}><NavLink to={item.path} className={({ isActive }) => `block whitespace-nowrap rounded-full px-[14px] py-[7px] text-sm transition-[color,background-color] duration-200 hover:text-white ${isActive ? 'bg-white/[0.12] font-bold text-white' : 'text-[#e5e5e5]'}`}>{item.label}</NavLink></li>)}
