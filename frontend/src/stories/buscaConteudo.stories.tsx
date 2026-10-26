@@ -102,6 +102,24 @@ export const CorrecoesSeparadas: Story = {
   },
 }
 export const CatalogoVazio: Story = { args: { obras: [] }, parameters: { routerPath: '/busca?q=filme' } }
+export const CorrecoesComResultados: Story = {
+  args: { obras: [
+    { ...obra, titulo: 'Cidade de Deus', diretor: null },
+    { ...obra, id: 2, titulo: 'Cidade dos Homens', diretor: null },
+    { ...obra, id: 3, titulo: 'Cidade Baixa', diretor: null },
+  ] },
+  parameters: { routerPath: '/busca?q=Cidade' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const faixa = canvas.getByRole('navigation', { name: 'Correções de busca' })
+    await expect(within(faixa).getAllByRole('button')).toHaveLength(3)
+    await expect(canvas.getAllByRole('article')).toHaveLength(3)
+    await userEvent.click(within(faixa).getByRole('button', { name: 'Cidade de Deus' }))
+    await expect(canvas.getByRole('combobox')).toHaveValue('Cidade de Deus')
+    await expect(canvas.getByRole('status')).toHaveTextContent('1 obra encontrada')
+    await expect(within(canvas.getByRole('navigation', { name: 'Correções de busca' })).queryByRole('button', { name: 'Cidade de Deus' })).not.toBeInTheDocument()
+  },
+}
 export const Carregando: Story = { args: { carregando: true } }
 export const Falha: Story = {
   args: { erro: 'Verifique sua conexão e tente novamente.' },
@@ -123,8 +141,15 @@ export const RegrasDeBusca: Story = {
     await expect(corrigirBusca(obras, 'Cidde de Deus')[0].texto).toBe('Cidade de Deus')
     await expect(corrigirBusca(obras, 'Meireles')[0].texto).toBe('Fernando Meirelles')
     await expect(corrigirBusca(obras, 'zzzzzzzz')).toEqual([])
-    await expect(corrigirBusca(obras, 'De')).toEqual([])
-    await expect(corrigirBusca(obras, 'Cidade')).toEqual([])
+    await expect(corrigirBusca(obras, 'D')).toEqual([])
+    await expect(corrigirBusca(obras, 'De')).toContainEqual({ texto: 'Cidade de Deus', tipo: 'Título' })
+    await expect(sugerirBusca(obras, 'Ci')).toContainEqual({ texto: 'Cidade de Deus', tipo: 'Título' })
+    await expect(corrigirBusca(obras, 'Cidade')).toContainEqual({ texto: 'Cidade de Deus', tipo: 'Título' })
+    await expect(corrigirBusca(obras, '  CIDADE de déus ')).not.toContainEqual({ texto: 'Cidade de Deus', tipo: 'Título' })
+    const limiar = [{ ...obra, titulo: 'Cidade', diretor: null }]
+    await expect(corrigirBusca(limiar, 'Cidzzz')).toEqual([{ texto: 'Cidade', tipo: 'Título' }])
+    await expect(corrigirBusca(limiar, 'Cizzzz')).toEqual([])
+    await expect(corrigirBusca(limiar, 'Cid')).toHaveLength(1)
     const muitos = Array.from({ length: 8 }, (_, i) => ({ ...obra, id: i, titulo: `Cidade ${i}` }))
     await expect(sugerirBusca(muitos, 'cidade')).toHaveLength(5)
     await expect(corrigirBusca(muitos, 'Cidde')).toHaveLength(3)

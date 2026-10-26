@@ -1,5 +1,7 @@
 import type { Obra } from '../types/catalog'
 
+const LIMIAR_CORRECAO = 0.5
+
 export interface SugestaoBusca {
   texto: string
   tipo: 'Título' | 'Diretor'
@@ -55,7 +57,7 @@ function pontuarNome(termo: string, nome: string): number {
     for (let fim = inicio + 1; fim <= palavras.length; fim++) {
       const trecho = palavras.slice(inicio, fim).join(' ')
       // Comprimentos muito diferentes nunca atingiriam o limite de semelhança.
-      if (Math.min(termo.length, trecho.length) / Math.max(termo.length, trecho.length) < 0.75) continue
+      if (Math.min(termo.length, trecho.length) / Math.max(termo.length, trecho.length) < LIMIAR_CORRECAO) continue
       melhor = Math.max(melhor, similaridade(termo, trecho))
     }
   }
@@ -64,10 +66,11 @@ function pontuarNome(termo: string, nome: string): number {
 
 export function corrigirBusca(obras: Obra[], consulta: string): SugestaoBusca[] {
   const termo = normalizarBusca(consulta)
-  if (termo.length < 3 || filtrarObras(obras, consulta).length) return []
+  if (termo.length < 2) return []
   return candidatos(obras)
+    .filter(item => normalizarBusca(item.texto) !== termo)
     .map(item => ({ item, pontos: pontuarNome(termo, normalizarBusca(item.texto)) }))
-    .filter(({ pontos }) => pontos >= 0.75)
+    .filter(({ pontos }) => pontos >= LIMIAR_CORRECAO)
     .sort((a, b) => b.pontos - a.pontos || a.item.texto.localeCompare(b.item.texto, 'pt-BR'))
     .slice(0, 3)
     .map(({ item }) => item)
