@@ -4,6 +4,8 @@ import CadastroPage from './pages/cadastropage.tsx'
 import LoginPage from './pages/loginpage.tsx'
 import PlayerPage from './pages/playerpage.tsx'
 import CatalogoLayout from './components/catalogoLayout'
+import BuscaLayout from './components/buscaLayout'
+import BuscaPage from './pages/busca'
 import Placeholder from './pages/placeholderpage'
 import { NAV_ITEMS } from './utils/navItens'
 export default function App() {
@@ -11,6 +13,9 @@ export default function App() {
       <Routes>
         <Route path="/register" element={<CadastroPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route element={<BuscaLayout />}>
+          <Route path="/busca" element={<BuscaPage />} />
+        </Route>
         <Route element={<CatalogoLayout />}>
           <Route path="/catalogo" element={<Catalogo />} />
           <Route path="/assistir" element={<PlayerPage />} />
