@@ -16,10 +16,11 @@ export default function App() {
         <Route element={<BuscaLayout />}>
           <Route path="/busca" element={<BuscaPage />} />
         </Route>
+        {/* Fora do CatalogoLayout para o vídeo ocupar a tela inteira; a própria página exige login */}
+        <Route path="/assistir/:id" element={<PlayerPage />} />
+        <Route path="/assistir" element={<Navigate to="/catalogo" replace />} />
         <Route element={<CatalogoLayout />}>
           <Route path="/catalogo" element={<Catalogo />} />
-          <Route path="/assistir" element={<PlayerPage />} />
-          <Route path="/assistir/:id" element={<PlayerPage />} />
           {NAV_ITEMS.map(item => <Route key={item.path} path={item.path} element={<Placeholder title={item.label} />} />)}
           <Route path="/meu-uira/add/:id" element={<Placeholder title="Minha lista" />} />
         </Route>
