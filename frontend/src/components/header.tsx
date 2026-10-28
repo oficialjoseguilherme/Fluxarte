@@ -25,7 +25,7 @@ export default function Header({ campoBusca }: { campoBusca?: ReactNode }) {
       <div className={`flex min-w-0 items-center gap-1 ${campoBusca ? 'max-[760px]:col-start-2 max-[760px]:row-start-1' : ''}`}>
         {!campoBusca && <NavLink to="/busca" aria-label="Buscar" className="flex items-center rounded p-[6px] hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 fill-current"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zM9.5 14A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14" /></svg></NavLink>}
         <IconButton label={`Notificações (${NOTIFICATION_COUNT} não lidas)`} className="relative"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 fill-current"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2m6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1z" /></svg><span aria-hidden="true" className="absolute right-0 top-0 h-[17px] min-w-[17px] rounded-full bg-[#e50914] px-1 text-center text-[11px] font-bold leading-[17px]">{NOTIFICATION_COUNT}</span></IconButton>
-        <IconButton label="Conta" className="gap-[2px] pl-[10px]"><img src="/react.svg" alt="" className="h-8 w-8 rounded" /><svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 fill-current"><path d="m7 10 5 5 5-5z" /></svg></IconButton>
+        <IconButton label="Conta" className="gap-[2px] pl-[10px]"><img src="/Kick.png" alt="" className="h-8 w-8 rounded" /><svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 fill-current"><path d="m7 10 5 5 5-5z" /></svg></IconButton>
       </div>
     </header>
   )
