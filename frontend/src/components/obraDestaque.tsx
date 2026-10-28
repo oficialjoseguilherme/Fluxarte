@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import type { Obra } from '../types/catalog';
+import ClassificacaoBadge from './classificacaoBadge';
 
 export function ObraDestaque({ item }: { item: Obra }) {
   const [failedSource, setFailedSource] = useState<string | null>(null);
@@ -13,8 +14,8 @@ export function ObraDestaque({ item }: { item: Obra }) {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,#111_5%,transparent_90%),linear-gradient(to_right,#111_20%,transparent_100%)]" />
       <div className="w-full px-4 pb-24 pt-36 sm:px-8 sm:pb-36">
         <h1 className="max-w-3xl text-4xl font-bold sm:text-6xl">{item.titulo}</h1>
-        <div className="mt-4 flex flex-wrap gap-4 font-bold">
-          <span className="text-white">{item.classificacaoIndicativa} Anos</span>
+        <div className="mt-4 flex flex-wrap items-center gap-4 font-bold">
+          <ClassificacaoBadge classificacao={item.classificacaoIndicativa} />
           {year && <span>{year}</span>}
         </div>
         <p className="mt-4 max-w-xl text-base text-neutral-300 sm:text-xl">{item.sinopse ? (item.sinopse.length > 250 ? `${item.sinopse.slice(0, 247)}…` : item.sinopse) : 'Sinopse indisponível.'}</p>
