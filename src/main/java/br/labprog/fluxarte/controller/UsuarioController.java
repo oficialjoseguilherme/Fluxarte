@@ -1,14 +1,19 @@
 package br.labprog.fluxarte.controller;
 
+import br.labprog.fluxarte.dto.request.AtualizarGenerosPreferidosRequest;
 import br.labprog.fluxarte.dto.request.AtualizarPerfilRequest;
+import br.labprog.fluxarte.dto.response.GenerosPreferidosResponse;
 import br.labprog.fluxarte.dto.response.UsuarioResponse;
 import br.labprog.fluxarte.model.Usuario;
+import br.labprog.fluxarte.model.enums.NomeGenero;
 import br.labprog.fluxarte.service.UsuarioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -33,6 +38,23 @@ public class UsuarioController {
                 usuarioId, request.nomeExibicao(), request.aceitaConteudoAdulto()
         );
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/me/generos-preferidos")
+    public ResponseEntity<GenerosPreferidosResponse> atualizarGenerosPreferidos(
+            Authentication authentication,
+            @RequestBody @Valid AtualizarGenerosPreferidosRequest request) {
+        UUID usuarioId = (UUID) authentication.getPrincipal();
+        Set<NomeGenero> generos = usuarioService.atualizarGenerosPreferidos(usuarioId, request.generos());
+        return ResponseEntity.ok(new GenerosPreferidosResponse(generos));
+    }
+
+    @GetMapping("/me/generos-preferidos")
+    public ResponseEntity<GenerosPreferidosResponse> listarGenerosPreferidos(
+            Authentication authentication) {
+        UUID usuarioId = (UUID) authentication.getPrincipal();
+        Set<NomeGenero> generos = usuarioService.listarGenerosPreferidos(usuarioId);
+        return ResponseEntity.ok(new GenerosPreferidosResponse(generos));
     }
 
     @DeleteMapping("/me")

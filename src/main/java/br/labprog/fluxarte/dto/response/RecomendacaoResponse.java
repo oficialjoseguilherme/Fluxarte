@@ -6,6 +6,5 @@ public record RecomendacaoResponse(
     Long obraId,
     String tituloObra,
     String posterUrlObra,
-    ClassificacaoIndicativa classificacaoIndicativa,
-    Float score
+    ClassificacaoIndicativa classificacaoIndicativa
 ) {}

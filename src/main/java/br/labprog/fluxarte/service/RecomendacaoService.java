@@ -1,5 +1,9 @@
 package br.labprog.fluxarte.service;
 
+import br.labprog.fluxarte.dto.response.PrateleiraResponse;
+import br.labprog.fluxarte.dto.response.RecomendacaoHomeResponse;
+import br.labprog.fluxarte.dto.response.RecomendacaoResponse;
+import br.labprog.fluxarte.mapper.RecomendacaoMapper;
 import br.labprog.fluxarte.model.GeneroObra;
 import br.labprog.fluxarte.model.HistoricoVisualizacao;
 import br.labprog.fluxarte.model.ObraAudiovisual;
@@ -27,6 +31,7 @@ public class RecomendacaoService {
     private final UsuarioService usuarioService;
     private final HistoricoVisualizacaoService historicoService;
     private final ObraAudiovisualService obraService;
+    private final RecomendacaoMapper recomendacaoMapper;
 
     @Transactional
     public List<Recomendacao> gerarParaUsuario(UUID usuarioId) {
@@ -63,6 +68,63 @@ public class RecomendacaoService {
     @Transactional(readOnly = true)
     public List<Recomendacao> listarPorUsuario(UUID usuarioId) {
         return recomendacaoRepository.findByUsuarioIdOrderByScoreDesc(usuarioId);
+    }
+
+    @Transactional
+    public List<Recomendacao> obterOuGerarRecomendacoes(UUID usuarioId) {
+        List<Recomendacao> existentes = recomendacaoRepository.findByUsuarioIdOrderByScoreDesc(usuarioId);
+        if (existentes.isEmpty()) {
+            return gerarParaUsuario(usuarioId);
+        }
+        return existentes;
+    }
+
+    @Transactional
+    public RecomendacaoHomeResponse obterHome(UUID usuarioId) {
+        List<Recomendacao> recomendacoes = obterOuGerarRecomendacoes(usuarioId);
+        if (recomendacoes.isEmpty()) {
+            return new RecomendacaoHomeResponse(null, List.of());
+        }
+
+        RecomendacaoResponse destaque = recomendacaoMapper.toResponse(recomendacoes.get(0));
+
+        List<RecomendacaoResponse> todosResponses = recomendacoes.stream()
+                .map(recomendacaoMapper::toResponse)
+                .toList();
+
+        List<PrateleiraResponse> prateleiras = new ArrayList<>();
+
+        prateleiras.add(new PrateleiraResponse(
+                "em-alta-para-voce",
+                "Em Sintonia com Você",
+                todosResponses
+        ));
+
+        List<RecomendacaoResponse> porHistorico = recomendacoes.stream()
+                .filter(r -> r.getAlgoritmo() == AlgoritmoRecomendacao.HISTORICO)
+                .map(recomendacaoMapper::toResponse)
+                .toList();
+        if (!porHistorico.isEmpty()) {
+            prateleiras.add(new PrateleiraResponse(
+                    "porque-voce-assistiu",
+                    "Porque Você Assistiu",
+                    porHistorico
+            ));
+        }
+
+        List<RecomendacaoResponse> porDiretor = recomendacoes.stream()
+                .filter(r -> r.getAlgoritmo() == AlgoritmoRecomendacao.SIMILAR_DIRETOR)
+                .map(recomendacaoMapper::toResponse)
+                .toList();
+        if (!porDiretor.isEmpty()) {
+            prateleiras.add(new PrateleiraResponse(
+                    "mesmo-diretor",
+                    "Mais Obras dos Seus Diretores Favoritos",
+                    porDiretor
+            ));
+        }
+
+        return new RecomendacaoHomeResponse(destaque, prateleiras);
     }
 
     private void porPreferenciaGenero(Usuario usuario, List<ObraAudiovisual> candidatas,

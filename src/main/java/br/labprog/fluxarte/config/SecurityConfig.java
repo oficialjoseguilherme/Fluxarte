@@ -34,12 +34,14 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/error").permitAll()
+                        .requestMatchers("/api/usuarios/me/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/me").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/usuarios/me").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/usuarios/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/obras/**").authenticated()
                         .requestMatchers("/api/obras/**").hasRole("ADMIN")
+                        .requestMatchers("/api/recomendacoes/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -6,7 +6,10 @@ import br.labprog.fluxarte.exceptions.ConflitoException;
 import br.labprog.fluxarte.exceptions.RecursoNaoEncontradoException;
 import br.labprog.fluxarte.exceptions.RegraNegocioException;
 import br.labprog.fluxarte.mapper.UsuarioMapper;
+import br.labprog.fluxarte.model.GeneroObra;
 import br.labprog.fluxarte.model.Usuario;
+import br.labprog.fluxarte.model.enums.NomeGenero;
+import br.labprog.fluxarte.repository.GeneroObraRepository;
 import br.labprog.fluxarte.repository.UsuarioRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
+    private final GeneroObraRepository generoRepository;
 
     @Transactional
     public UsuarioResponse cadastrar(UsuarioCadastroRequest request) {
@@ -99,5 +105,30 @@ public class UsuarioService {
                 .filter(usuario -> Boolean.TRUE.equals(usuario.getAtivo()))
                 .map(usuario -> passwordEncoder.matches(senha, usuario.getSenhaHash()))
                 .orElse(false);
+    }
+
+    @Transactional
+    public Set<NomeGenero> atualizarGenerosPreferidos(UUID id, Set<NomeGenero> nomesGeneros) {
+        if (nomesGeneros == null) {
+            throw new RegraNegocioException("A lista de gêneros preferidos não pode ser nula");
+        }
+        Usuario usuario = buscarEntidadePorId(id);
+        usuario.getGenerosPreferidos().clear();
+        for (NomeGenero nome : nomesGeneros) {
+            generoRepository.findByNome(nome)
+                    .ifPresent(usuario.getGenerosPreferidos()::add);
+        }
+        Usuario salvo = usuarioRepository.save(usuario);
+        return salvo.getGenerosPreferidos().stream()
+                .map(GeneroObra::getNome)
+                .collect(Collectors.toSet());
+    }
+
+    @Transactional(readOnly = true)
+    public Set<NomeGenero> listarGenerosPreferidos(UUID id) {
+        Usuario usuario = buscarEntidadePorId(id);
+        return usuario.getGenerosPreferidos().stream()
+                .map(GeneroObra::getNome)
+                .collect(Collectors.toSet());
     }
 }
