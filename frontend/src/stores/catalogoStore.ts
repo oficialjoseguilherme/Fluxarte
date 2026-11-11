@@ -1,11 +1,12 @@
 import { dispatcher } from '../dispatchers/dispatcher'
-import type { Obra } from '../types/catalog'
+import type { Obra, PrateleiraRecomendacao } from '../types/catalog'
 
 interface CatalogoState {
   carregando: boolean
   erro: string | null
   obras: Obra[]
   destaque: Obra | null
+  prateleiras: PrateleiraRecomendacao[]
 }
 
 let estado: CatalogoState = {
@@ -13,6 +14,7 @@ let estado: CatalogoState = {
   erro: null,
   obras: [],
   destaque: null,
+  prateleiras: [],
 }
 
 const listeners = new Set<() => void>()
@@ -25,6 +27,7 @@ dispatcher.register((action) => {
         erro: null,
         obras: [],
         destaque: null,
+        prateleiras: [],
       }
       break
 
@@ -34,6 +37,7 @@ dispatcher.register((action) => {
         erro: null,
         obras: action.obras,
         destaque: action.destaque,
+        prateleiras: action.prateleiras ?? [],
       }
       break
 
@@ -43,6 +47,7 @@ dispatcher.register((action) => {
         erro: action.mensagem,
         obras: [],
         destaque: null,
+        prateleiras: [],
       }
       break
 

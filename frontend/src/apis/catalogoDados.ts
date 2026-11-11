@@ -1,4 +1,4 @@
-import type { CatalogSection, Obra } from '../types/catalog'
+import type { CatalogSection, Obra, PrateleiraRecomendacao } from '../types/catalog'
 
 function text(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -41,11 +41,23 @@ export function normalizarCatalogo(data: unknown): Obra[] {
   })
 }
 
-export function criarSecoes(obras: Obra[]): CatalogSection[] {
+export function criarSecoes(obras: Obra[], prateleirasRecomendadas: PrateleiraRecomendacao[] = []): CatalogSection[] {
   if (!obras.length) return []
+  const obrasMap = new Map(obras.map(obra => [obra.id, obra]))
+  const secoesRecomendadas: CatalogSection[] = prateleirasRecomendadas
+    .map(prateleira => ({
+      url: prateleira.id,
+      titulo: prateleira.titulo,
+      obras: prateleira.itens
+        .map(item => obrasMap.get(item.obraId))
+        .filter((obra): obra is Obra => obra !== undefined),
+    }))
+    .filter(secao => secao.obras.length > 0)
+
   const generos = [...new Set(obras.flatMap(obra => obra.generos))]
     .sort((a, b) => a.localeCompare(b, 'pt-BR'))
   const sections: CatalogSection[] = [
+    ...secoesRecomendadas,
     { url: 'todas-as-obras', titulo: 'Todas as obras', obras: obras },
     ...generos.map(genero => ({
       url: `genero-${encodeURIComponent(genero)}`,

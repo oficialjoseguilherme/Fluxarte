@@ -1,11 +1,6 @@
-const GENEROS: Record<string, string> = {
-  DOCUMENTARIO: 'Documentário',
-  FICCAO: 'Ficção',
-  ANIMACAO: 'Animação',
-}
-
 export function formatarGenero(genero: string): string {
-  return GENEROS[genero.toUpperCase()] ?? genero.charAt(0).toLocaleUpperCase('pt-BR') + genero.slice(1).toLocaleLowerCase('pt-BR')
+  const limpo = genero.replace(/_/g, ' ')
+  return limpo.charAt(0).toLocaleUpperCase('pt-BR') + limpo.slice(1).toLocaleLowerCase('pt-BR')
 }
 
 export function formatarData(iso: string | null): string | null {

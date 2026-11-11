@@ -1,12 +1,6 @@
-//para o catalogo
-import type { Obra } from '../types/catalog'
-
-//para o loginpage
+import type { Obra, PrateleiraRecomendacao } from '../types/catalog'
 import type { TokenResponse } from '../apis/authapi'
 
-
-
-// para o cadastropage
 export type AppAction =
   | { type: 'CADASTRO_INICIADO' }
   | { type: 'CADASTRO_FALHOU'; mensagem: string }
@@ -19,7 +13,7 @@ export type AppAction =
   | { type: 'LOGIN_RESETADO' }
 
   | { type: 'CATALOGO_INICIADO'}
-  | { type: 'CATALOGO_SUCESSO'; obras: Obra[] , destaque: Obra | null }
+  | { type: 'CATALOGO_SUCESSO'; obras: Obra[]; destaque: Obra | null; prateleiras?: PrateleiraRecomendacao[] }
   | { type: 'CATALOGO_FALHOU'; mensagem: string }
 
 type ActionHandler = (action: AppAction) => void

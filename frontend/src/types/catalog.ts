@@ -22,3 +22,21 @@ export interface CatalogSection {
   titulo: string;
   obras: Obra[];
 }
+
+export interface ItemRecomendacao {
+  obraId: number
+  tituloObra: string
+  posterUrlObra: string | null
+  classificacaoIndicativa: string | null
+}
+
+export interface PrateleiraRecomendacao {
+  id: string
+  titulo: string
+  itens: ItemRecomendacao[]
+}
+
+export interface RecomendacaoHomeResponse {
+  destaque: ItemRecomendacao | null
+  prateleiras: PrateleiraRecomendacao[]
+}

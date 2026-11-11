@@ -14,9 +14,9 @@ import ObraInfo from '../components/obraInfo'
 
 export default function CatalogoPage() {
   const { tokens } = useSyncExternalStore(authStore.subscribe, authStore.getSnapshot)
-  const { obras, destaque, carregando, erro } = useSyncExternalStore(catalogoStore.subscribe, catalogoStore.getSnapshot)
+  const { obras, destaque, prateleiras, carregando, erro } = useSyncExternalStore(catalogoStore.subscribe, catalogoStore.getSnapshot)
   const accessToken = tokens?.accessToken
-  const sections = useMemo(() => criarSecoes(obras), [obras])
+  const sections = useMemo(() => criarSecoes(obras, prateleiras), [obras, prateleiras])
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
@@ -28,7 +28,6 @@ export default function CatalogoPage() {
   }, [accessToken])
   if (!accessToken) return <Navigate to="/login" replace />
 
-  // Se o modal foi aberto a partir do catálogo, voltar no histórico; se veio por link direto, só remove o ?obra
   function fecharObra() {
     if (location.state?.abertoPeloCatalogo) navigate(-1)
     else setSearchParams(params => { params.delete('obra'); return params }, { replace: true })
